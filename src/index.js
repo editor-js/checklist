@@ -77,44 +77,41 @@ class Checklist {
     // fill with data
     if (this._data.items.length) {
       this._data.items.forEach(item => {
-        let checkListItem = this._make('li', this.CSS.item);
-        let checkBoxLabel = this._make('label', this.CSS.label);
-        let checkBox = this._make('input', this.CSS.checkbox, {type: 'checkbox', checked: item.checked});
-        let textField = this._make('div', this.CSS.textField, {innerHTML: item.text});
-
-        if (item.checked) {
-          checkListItem.classList.add(this.CSS.itemChecked);
-        }
-
-        checkListItem.appendChild(checkBox);
-        checkListItem.appendChild(checkBoxLabel);
-        checkListItem.appendChild(textField);
-
-        this._elements.wrapper.appendChild(checkListItem);
+        this.createChecklistItem(item);
       });
     } else {
-      let checkListItem = this._make('li', this.CSS.item);
-      let checkBoxLabel = this._make('label', this.CSS.label);
-      let checkBox = this._make('input', this.CSS.checkbox, {type: 'checkbox'});
-      let textField = this._make('div', this.CSS.textField);
-
-      checkListItem.appendChild(checkBox);
-      checkListItem.appendChild(checkBoxLabel);
-      checkListItem.appendChild(textField);
-
-      this._elements.wrapper.appendChild(checkListItem);
+      this.createChecklistItem();
     }
 
-    this._elements.wrapper.querySelectorAll(`.${this.CSS.item}`).forEach((item) => {
-      item.querySelector(`.${this.CSS.label}`).addEventListener('click', () => {
-        item.classList.toggle(this.CSS.itemChecked);
-        let checkbox = item.querySelector(`.${this.CSS.checkbox}`);
+    return this._elements.wrapper;
+  }
 
-        checkbox.checked = !checkbox.checked;
-      });
+  /**
+   * Create Checklist items
+   * @param {ChecklistData} item - data.item
+   */
+  createChecklistItem(item = {}) {
+    const checkListItem = this._make('li', this.CSS.item);
+    const checkBoxLabel = this._make('label', this.CSS.label);
+    const checkBox = this._make('input', this.CSS.checkbox, {
+      type: 'checkbox', checked: item.checked ? item.checked : false
+    });
+    const textField = this._make('div', this.CSS.textField, {innerHTML: item.text ? item.text : ''});
+
+    if (item.checked) {
+      checkListItem.classList.add(this.CSS.itemChecked);
+    }
+
+    checkListItem.appendChild(checkBox);
+    checkListItem.appendChild(checkBoxLabel);
+    checkListItem.appendChild(textField);
+
+    checkBoxLabel.addEventListener('click', () => {
+      checkListItem.classList.toggle(this.CSS.itemChecked);
+      checkBox.checked = !checkBox.checked;
     });
 
-    return this._elements.wrapper;
+    this._elements.wrapper.appendChild(checkListItem);
   }
 
   /**
@@ -173,7 +170,7 @@ class Checklist {
 
       if (value) {
         this._data.items.push({
-          text: items[i].querySelector(`.${this.CSS.textField}`).innerHTML,
+          text: value,
           checked: items[i].classList.contains(this.CSS.itemChecked)
         });
       }
@@ -191,7 +188,7 @@ class Checklist {
    * @return {Element}
    */
   _make(tagName, classNames = null, attributes = {}) {
-    let el = document.createElement(tagName);
+    const el = document.createElement(tagName);
 
     if (Array.isArray(classNames)) {
       el.classList.add(...classNames);
