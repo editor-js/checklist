@@ -1,0 +1,210 @@
+/**
+ * Build styles
+ */
+require('./index.css').toString();
+
+/**
+ * @typedef {object} ChecklistData
+ * @property {array} items - li elements
+ */
+
+/**
+ * Checklist Tool for the CodeX Editor 2.0
+ */
+class Checklist {
+  /**
+   * Allow to use native Enter behaviour
+   * @returns {boolean}
+   * @public
+   */
+  static get enableLineBreaks() {
+    return true;
+  }
+
+  /**
+   * Get Tool toolbox settings
+   * icon - Tool icon's SVG
+   * title - title to show in toolbox
+   *
+   * @return {{icon: string, title: string}}
+   */
+  static get toolbox() {
+    return {
+      icon: '<svg width="17" height="13" viewBox="0 0 17 13" xmlns="http://www.w3.org/2000/svg"> <path d="M5.625 4.85h9.25a1.125 1.125 0 0 1 0 2.25h-9.25a1.125 1.125 0 0 1 0-2.25zm0-4.85h9.25a1.125 1.125 0 0 1 0 2.25h-9.25a1.125 1.125 0 0 1 0-2.25zm0 9.85h9.25a1.125 1.125 0 0 1 0 2.25h-9.25a1.125 1.125 0 0 1 0-2.25zm-4.5-5a1.125 1.125 0 1 1 0 2.25 1.125 1.125 0 0 1 0-2.25zm0-4.85a1.125 1.125 0 1 1 0 2.25 1.125 1.125 0 0 1 0-2.25zm0 9.85a1.125 1.125 0 1 1 0 2.25 1.125 1.125 0 0 1 0-2.25z"/></svg>',
+      title: 'Checklist'
+    };
+  }
+
+  /**
+   * Render plugin`s main Element and fill it with saved data
+   *
+   * @param {{data: ChecklistData, config: object, api: object}}
+   *   data — previously saved data
+   *   config - user config for Tool
+   *   api - CodeX Editor API
+   */
+  constructor({data, config, api}) {
+    /**
+     * HTML nodes
+     * @private
+     */
+    this._elements = {
+      wrapper : null,
+    };
+
+    /**
+     * Tool's data
+     * @type {ChecklistData}
+     * */
+    this._data = {
+      items: []
+    };
+
+    this.api = api;
+    this.data = data;
+  }
+
+  /**
+   * Returns checklist tag with items
+   * @return {Element}
+   * @public
+   */
+  render() {
+    this._elements.wrapper = this._make('ul', [this.CSS.baseBlock, this.CSS.wrapper], {
+      contentEditable: true
+    });
+
+    // fill with data
+    if (this._data.items.length) {
+      this._data.items.forEach(item => {
+        let checkListItem = this._make('li', this.CSS.item);
+        let checkBoxLabel = this._make('label', this.CSS.label);
+        let checkBox = this._make('input', this.CSS.checkbox, {type: 'checkbox', checked: item.checked});
+        let textField = this._make('div', this.CSS.textField, {innerHTML: item.text});
+
+        if (item.checked) {
+          checkListItem.classList.add(this.CSS.itemChecked);
+        }
+
+        checkListItem.appendChild(checkBox);
+        checkListItem.appendChild(checkBoxLabel);
+        checkListItem.appendChild(textField);
+
+        this._elements.wrapper.appendChild(checkListItem);
+      });
+    } else {
+      let checkListItem = this._make('li', this.CSS.item);
+      let checkBoxLabel = this._make('label', this.CSS.label);
+      let checkBox = this._make('input', this.CSS.checkbox, {type: 'checkbox'});
+      let textField = this._make('div', this.CSS.textField);
+
+      checkListItem.appendChild(checkBox);
+      checkListItem.appendChild(checkBoxLabel);
+      checkListItem.appendChild(textField);
+
+      this._elements.wrapper.appendChild(checkListItem);
+    }
+
+    this._elements.wrapper.querySelectorAll(`.${this.CSS.item}`).forEach((item) => {
+      item.querySelector(`.${this.CSS.label}`).addEventListener('click', () => {
+        item.classList.toggle(this.CSS.itemChecked);
+        let checkbox = item.querySelector(`.${this.CSS.checkbox}`);
+
+        checkbox.checked = !checkbox.checked;
+      });
+    });
+
+    return this._elements.wrapper;
+  }
+
+  /**
+   * @return {ChecklistData}
+   * @public
+   */
+  save() {
+    return this.data;
+  }
+
+  /**
+   * Styles
+   * @private
+   */
+  get CSS() {
+    return {
+      baseBlock: this.api.styles.block,
+      wrapper: 'cdx-checklist',
+      item: 'cdx-checklist__item',
+      itemChecked: 'cdx-checklist__item--checked',
+      checkbox: 'cdx-checklist__checkbox',
+      label: 'cdx-checklist__label',
+      textField: 'cdx-checklist__text'
+    };
+  }
+
+  /**
+   * Checklist data setter
+   * @param {ChecklistData} checklistData
+   */
+  set data(checklistData) {
+    if (!checklistData) {
+      checklistData = {};
+    }
+
+    this._data.items = checklistData.items || [];
+
+    const oldView = this._elements.wrapper;
+
+    if (oldView) {
+      oldView.parentNode.replaceChild(this.render(), oldView);
+    }
+  }
+
+  /**
+   * Return Checklist data
+   * @return {ChecklistData}
+   */
+  get data() {
+    this._data.items = [];
+
+    const items = this._elements.wrapper.querySelectorAll(`.${this.CSS.item}`);
+
+    for (let i = 0; i < items.length; i++) {
+      const value = items[i].querySelector(`.${this.CSS.textField}`).innerHTML.replace('<br>', ' ').trim();
+
+      if (value) {
+        this._data.items.push({
+          text: items[i].querySelector(`.${this.CSS.textField}`).innerHTML,
+          checked: items[i].classList.contains(this.CSS.itemChecked)
+        });
+      }
+    }
+
+    return this._data;
+  }
+
+  /**
+   * Helper for making Elements with attributes
+   *
+   * @param  {string} tagName           - new Element tag name
+   * @param  {array|string} classNames  - list or name of CSS classname(s)
+   * @param  {Object} attributes        - any attributes
+   * @return {Element}
+   */
+  _make(tagName, classNames = null, attributes = {}) {
+    let el = document.createElement(tagName);
+
+    if (Array.isArray(classNames)) {
+      el.classList.add(...classNames);
+    } else if (classNames) {
+      el.classList.add(classNames);
+    }
+
+    for (let attrName in attributes) {
+      el[attrName] = attributes[attrName];
+    }
+
+    return el;
+  }
+}
+
+module.exports = Checklist;
