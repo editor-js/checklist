@@ -30,6 +30,7 @@
             border-radius: 50%;
             background: #fff;
             cursor: pointer;
+            user-select: none;
 
             &::after {
                 position: absolute;
