@@ -77,10 +77,10 @@ class Checklist {
     // fill with data
     if (this._data.items.length) {
       this._data.items.forEach(item => {
-        this.createChecklistItem(item);
+        this._elements.wrapper.appendChild(this.createChecklistItem(item));
       });
     } else {
-      this.createChecklistItem();
+      this._elements.wrapper.appendChild(this.createChecklistItem());
     }
 
     // detect keydown on the last item to escape List
@@ -90,7 +90,7 @@ class Checklist {
 
       switch (event.keyCode) {
         case ENTER:
-          this.getOutofList(event);
+          this.appendNewElements(event);
           break;
         case BACKSPACE:
           this.backspace(event);
@@ -109,14 +109,22 @@ class Checklist {
   /**
    * Create Checklist items
    * @param {ChecklistData} item - data.item
+   * @return {HTMLElement} checkListItem - new element of checklist
    */
   createChecklistItem(item = {}) {
-    const checkListItem = this._make('div', this.CSS.item);
-    const fakeCheckBox = this._make('label', this.CSS.fakeCheckBox);
+    const checkListItem = this._make('div', this.CSS.item, {
+      contentEditable: false
+    });
+
+    const fakeCheckBox = this._make('label', this.CSS.fakeCheckBox, {contentEditable: false});
+
     const checkBox = this._make('input', this.CSS.checkbox, {
       type: 'checkbox', checked: item.checked ? item.checked : false
     });
-    const textField = this._make('div', this.CSS.textField, {innerHTML: item.text ? item.text : ''});
+
+    const textField = this._make('div', this.CSS.textField, {
+      innerHTML: item.text ? item.text : '', contentEditable: true
+    });
 
     if (item.checked) {
       checkListItem.classList.add(this.CSS.itemChecked);
@@ -131,42 +139,38 @@ class Checklist {
       checkBox.checked = !checkBox.checked;
     });
 
-    this._elements.wrapper.appendChild(checkListItem);
+    return checkListItem;
   }
 
   /**
-   * Get out from List Tool
-   * by Enter on the empty last item
+   * Append new elements to the list by pressing Enter
    * @param {KeyboardEvent} event
    */
-  getOutofList(event) {
+  appendNewElements(event) {
+    event.preventDefault();
 
-    const items = this._elements.wrapper.querySelectorAll('.' + this.CSS.item);
-
-    /**
-     * Save the last one.
-     */
-    if (items.length < 2) {
-      this.createChecklistItem();
-      return;
-    }
-
+    const items = [ ...this._elements.wrapper.querySelectorAll('.' + this.CSS.item) ];
+    const wrapper = this._elements.wrapper;
     const lastItem = items[items.length - 1].querySelector('.' + this.CSS.textField);
     const currentNode = window.getSelection().anchorNode;
     const lastItemText = lastItem.innerHTML.replace('<br>', ' ').trim();
 
+    const newItem = this.createChecklistItem();
+    const currentIndex = items.indexOf(currentNode.parentNode.parentNode);
+
+    if (currentIndex !== -1) {
+      wrapper.insertBefore(newItem, wrapper.children[currentIndex + 1]);
+    }
+
+    newItem.querySelector('.' + this.CSS.textField).focus();
 
     /** Prevent Default li generation if item is empty */
     if (currentNode === lastItem && !lastItemText) {
 
       /** Insert New Block and set caret */
       this.api.blocks.insertNewBlock();
-      event.preventDefault();
       event.stopPropagation();
-      return;
     }
-
-    this.createChecklistItem();
   }
 
   /**
@@ -225,9 +229,9 @@ class Checklist {
       wrapper: 'cdx-checklist',
       item: 'cdx-checklist__item',
       itemChecked: 'cdx-checklist__item--checked',
-      checkbox: 'cdx-checklist__checkbox',
-      fakeCheckBox: 'cdx-checklist__fake-checkbox',
-      textField: 'cdx-checklist__text'
+      checkbox: 'cdx-checklist__item-checkbox',
+      fakeCheckBox: 'cdx-checklist__item-fake-checkbox',
+      textField: 'cdx-checklist__item-text'
     };
   }
 

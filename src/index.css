@@ -13,45 +13,51 @@
         padding: 10px;
         box-sizing: content-box;
         list-style: none;
-    }
 
-    &__checkbox {
-        display: none;
+        &-checkbox {
+            display: none;
 
-        &:checked + .cdx-checklist__fake-checkbox {
-            background: #037cfb;
-            border-color: #057aed;
+            &:checked + .cdx-checklist__item-fake-checkbox {
+                background: #037cfb;
+                border-color: #057aed;
 
-            &::after {
-                opacity: 1;
+                &::after {
+                    opacity: 1;
+                }
             }
         }
-    }
 
-    &__fake-checkbox {
-        display: inline-block;
-        position: relative;
-        width: 20px;
-        height: 20px;
-        margin-right: 10px;
-        border: 1px solid #d0d0d0;
-        border-radius: 50%;
-        background: #fff;
-        cursor: pointer;
+        &-text {
+            outline: none;
+            min-width: 200px;
+        }
 
-        &::after {
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            width: 9px;
-            height: 5px;
-            border: 2px solid #fcfff4;
-            border-top: none;
-            border-right: none;
-            background: transparent;
-            content: '';
-            opacity: 0;
-            transform: rotate(-45deg);
+        &-fake-checkbox {
+            display: inline-block;
+            flex-shrink: 0;
+            position: relative;
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            border: 1px solid #d0d0d0;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+
+            &::after {
+                position: absolute;
+                top: 5px;
+                left: 5px;
+                width: 9px;
+                height: 5px;
+                border: 2px solid #fcfff4;
+                border-top: none;
+                border-right: none;
+                background: transparent;
+                content: '';
+                opacity: 0;
+                transform: rotate(-45deg);
+            }
         }
     }
 }
