@@ -116,10 +116,8 @@ class Checklist {
       contentEditable: false
     });
 
-    const fakeCheckBox = this._make('label', this.CSS.fakeCheckBox, {contentEditable: false});
-
-    const checkBox = this._make('input', this.CSS.checkbox, {
-      type: 'checkbox', checked: item.checked ? item.checked : false
+    const checkbox = this._make('span', this.CSS.checkbox, {
+      contentEditable: false
     });
 
     const textField = this._make('div', this.CSS.textField, {
@@ -130,13 +128,11 @@ class Checklist {
       checkListItem.classList.add(this.CSS.itemChecked);
     }
 
-    checkListItem.appendChild(checkBox);
-    checkListItem.appendChild(fakeCheckBox);
+    checkListItem.appendChild(checkbox);
     checkListItem.appendChild(textField);
 
-    fakeCheckBox.addEventListener('click', () => {
+    checkbox.addEventListener('click', () => {
       checkListItem.classList.toggle(this.CSS.itemChecked);
-      checkBox.checked = !checkBox.checked;
     });
 
     return checkListItem;
@@ -166,7 +162,6 @@ class Checklist {
 
     /** Prevent Default li generation if item is empty */
     if (currentNode === lastItem && !lastItemText) {
-
       /** Insert New Block and set caret */
       this.api.blocks.insertNewBlock();
       event.stopPropagation();
@@ -230,7 +225,6 @@ class Checklist {
       item: 'cdx-checklist__item',
       itemChecked: 'cdx-checklist__item--checked',
       checkbox: 'cdx-checklist__item-checkbox',
-      fakeCheckBox: 'cdx-checklist__item-fake-checkbox',
       textField: 'cdx-checklist__item-text'
     };
   }

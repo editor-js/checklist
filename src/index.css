@@ -14,25 +14,12 @@
         box-sizing: content-box;
         list-style: none;
 
-        &-checkbox {
-            display: none;
-
-            &:checked + .cdx-checklist__item-fake-checkbox {
-                background: #037cfb;
-                border-color: #057aed;
-
-                &::after {
-                    opacity: 1;
-                }
-            }
-        }
-
         &-text {
             outline: none;
             min-width: 200px;
         }
 
-        &-fake-checkbox {
+        &-checkbox {
             display: inline-block;
             flex-shrink: 0;
             position: relative;
@@ -57,6 +44,17 @@
                 content: '';
                 opacity: 0;
                 transform: rotate(-45deg);
+            }
+        }
+
+        &--checked {
+            ^&-checkbox {
+                background: #037cfb;
+                border-color: #057aed;
+
+                &::after {
+                    opacity: 1;
+                }
             }
         }
     }
