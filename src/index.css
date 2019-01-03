@@ -16,7 +16,7 @@
 
         &-text {
             outline: none;
-            min-width: calc(100% - 32px);
+            flex-grow: 1;
             padding: 10px 0;
         }
 
