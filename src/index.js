@@ -70,7 +70,7 @@ class Checklist {
    * @public
    */
   render() {
-    this._elements.wrapper = this._make('ul', [this.CSS.baseBlock, this.CSS.wrapper], {
+    this._elements.wrapper = this._make('div', [this.CSS.baseBlock, this.CSS.wrapper], {
       contentEditable: true
     });
 
@@ -83,6 +83,26 @@ class Checklist {
       this.createChecklistItem();
     }
 
+    // detect keydown on the last item to escape List
+    this._elements.wrapper.addEventListener('keydown', (event) => {
+      const [ENTER, BACKSPACE, A] = [13, 8, 65]; // key codes
+      const cmdPressed = event.ctrlKey || event.metaKey;
+
+      switch (event.keyCode) {
+        case ENTER:
+          this.getOutofList(event);
+          break;
+        case BACKSPACE:
+          this.backspace(event);
+          break;
+        case A:
+          if (cmdPressed) {
+            this.selectItem(event);
+          }
+          break;
+      }
+    }, false);
+
     return this._elements.wrapper;
   }
 
@@ -91,8 +111,8 @@ class Checklist {
    * @param {ChecklistData} item - data.item
    */
   createChecklistItem(item = {}) {
-    const checkListItem = this._make('li', this.CSS.item);
-    const checkBoxLabel = this._make('label', this.CSS.label);
+    const checkListItem = this._make('div', this.CSS.item);
+    const fakeCheckBox = this._make('label', this.CSS.fakeCheckBox);
     const checkBox = this._make('input', this.CSS.checkbox, {
       type: 'checkbox', checked: item.checked ? item.checked : false
     });
@@ -103,15 +123,88 @@ class Checklist {
     }
 
     checkListItem.appendChild(checkBox);
-    checkListItem.appendChild(checkBoxLabel);
+    checkListItem.appendChild(fakeCheckBox);
     checkListItem.appendChild(textField);
 
-    checkBoxLabel.addEventListener('click', () => {
+    fakeCheckBox.addEventListener('click', () => {
       checkListItem.classList.toggle(this.CSS.itemChecked);
       checkBox.checked = !checkBox.checked;
     });
 
     this._elements.wrapper.appendChild(checkListItem);
+  }
+
+  /**
+   * Get out from List Tool
+   * by Enter on the empty last item
+   * @param {KeyboardEvent} event
+   */
+  getOutofList(event) {
+
+    const items = this._elements.wrapper.querySelectorAll('.' + this.CSS.item);
+
+    /**
+     * Save the last one.
+     */
+    if (items.length < 2) {
+      this.createChecklistItem();
+      return;
+    }
+
+    const lastItem = items[items.length - 1].querySelector('.' + this.CSS.textField);
+    const currentNode = window.getSelection().anchorNode;
+    const lastItemText = lastItem.innerHTML.replace('<br>', ' ').trim();
+
+
+    /** Prevent Default li generation if item is empty */
+    if (currentNode === lastItem && !lastItemText) {
+
+      /** Insert New Block and set caret */
+      this.api.blocks.insertNewBlock();
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+
+    this.createChecklistItem();
+  }
+
+  /**
+   * Handle backspace
+   * @param {KeyboardEvent} event
+   */
+  backspace(event) {
+    const items = this._elements.wrapper.querySelectorAll('.' + this.CSS.item),
+      firstItem = items[0];
+
+    if (!firstItem) {
+      return;
+    }
+
+    /**
+     * Save the last one.
+     */
+    if (items.length < 2 && !firstItem.innerHTML.replace('<br>', ' ').trim()) {
+      event.preventDefault();
+    }
+  }
+
+  /**
+   * Select LI content by CMD+A
+   * @param {KeyboardEvent} event
+   */
+  selectItem(event) {
+    event.preventDefault();
+
+    const selection = window.getSelection(),
+      currentNode = selection.anchorNode.parentNode,
+      currentItem = currentNode.closest('.' + this.CSS.item),
+      range = new Range();
+
+    range.selectNodeContents(currentItem);
+
+    selection.removeAllRanges();
+    selection.addRange(range);
   }
 
   /**
@@ -133,7 +226,7 @@ class Checklist {
       item: 'cdx-checklist__item',
       itemChecked: 'cdx-checklist__item--checked',
       checkbox: 'cdx-checklist__checkbox',
-      label: 'cdx-checklist__label',
+      fakeCheckBox: 'cdx-checklist__fake-checkbox',
       textField: 'cdx-checklist__text'
     };
   }

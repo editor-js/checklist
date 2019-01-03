@@ -13,16 +13,12 @@
         padding: 10px;
         box-sizing: content-box;
         list-style: none;
-
-        &--checked {
-            background: #e9f0fa;
-        }
     }
 
     &__checkbox {
         display: none;
 
-        &:checked + .cdx-checklist__label {
+        &:checked + .cdx-checklist__fake-checkbox {
             background: #037cfb;
             border-color: #057aed;
 
@@ -32,7 +28,7 @@
         }
     }
 
-    &__label {
+    &__fake-checkbox {
         display: inline-block;
         position: relative;
         width: 20px;
