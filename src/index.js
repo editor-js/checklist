@@ -149,10 +149,16 @@ class Checklist {
     const wrapper = this._elements.wrapper;
     const lastItem = items[items.length - 1].querySelector('.' + this.CSS.textField);
     const currentNode = window.getSelection().anchorNode;
+    const newItem = this.createChecklistItem();
     const lastItemText = lastItem.innerHTML.replace('<br>', ' ').trim();
 
-    const newItem = this.createChecklistItem();
-    const currentIndex = items.indexOf(currentNode.parentNode.parentNode);
+    let currentIndex = -1;
+
+    if (currentNode.parentNode.classList.contains(this.CSS.textField)) {
+      currentIndex = items.indexOf(currentNode.parentNode.parentNode);
+    } else {
+      currentIndex = items.indexOf(currentNode.parentNode);
+    }
 
     if (currentIndex !== -1) {
       wrapper.insertBefore(newItem, wrapper.children[currentIndex + 1]);
@@ -173,18 +179,24 @@ class Checklist {
    * @param {KeyboardEvent} event
    */
   backspace(event) {
-    const items = this._elements.wrapper.querySelectorAll('.' + this.CSS.item),
+    const items = [ ...this._elements.wrapper.querySelectorAll('.' + this.CSS.item) ],
       firstItem = items[0];
 
     if (!firstItem) {
       return;
     }
 
-    /**
-     * Save the last one.
-     */
-    if (items.length < 2 && !firstItem.innerHTML.replace('<br>', ' ').trim()) {
+    let currentItem = event.target.parentNode;
+    let currentIndex = items.indexOf(currentItem);
+
+    if (currentIndex && !currentItem.querySelector('.' + this.CSS.textField).innerHTML.replace('<br>', ' ').trim()) {
       event.preventDefault();
+      currentItem.remove();
+      if (items[currentIndex - 1]  !== 'undefined') {
+        this.moveCaretToEnd(items[currentIndex - 1].querySelector('.' + this.CSS.textField));
+      } else if (items[currentIndex + 1]  !== 'undefined') {
+        this.moveCaretToEnd(items[currentIndex + 1].querySelector('.' + this.CSS.textField));
+      }
     }
   }
 
@@ -292,6 +304,16 @@ class Checklist {
     }
 
     return el;
+  }
+
+  moveCaretToEnd(element) {
+    const range = document.createRange();
+    const selection = window.getSelection();
+
+    range.selectNodeContents(element);
+    range.collapse(false);
+    selection.removeAllRanges();
+    selection.addRange(range);
   }
 }
 
