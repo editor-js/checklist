@@ -27,7 +27,6 @@
             width: 20px;
             height: 20px;
             margin: 10px 10px 10px 0;
-            border: 1px solid #d0d0d0;
             border-radius: 50%;
             background: #fff;
             cursor: pointer;
@@ -37,7 +36,7 @@
                 position: absolute;
                 top: 5px;
                 left: 5px;
-                width: 9px;
+                width: 8px;
                 height: 5px;
                 border: 2px solid #fcfff4;
                 border-top: none;
@@ -51,8 +50,11 @@
 
         &--checked {
             ^&-checkbox {
-                background: #037cfb;
-                border-color: #057aed;
+                background: #388ae5;
+
+                &:hover {
+                    background: #307cd1;
+                }
 
                 &::after {
                     opacity: 1;
