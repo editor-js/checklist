@@ -83,10 +83,9 @@ class Checklist {
       this._elements.wrapper.appendChild(this.createChecklistItem());
     }
 
-    // detect keydown on the last item to escape List
+    // add event-listeners
     this._elements.wrapper.addEventListener('keydown', (event) => {
-      const [ENTER, BACKSPACE, A] = [13, 8, 65]; // key codes
-      const cmdPressed = event.ctrlKey || event.metaKey;
+      const [ENTER, BACKSPACE] = [13, 8]; // key codes
 
       switch (event.keyCode) {
         case ENTER:
@@ -94,11 +93,6 @@ class Checklist {
           break;
         case BACKSPACE:
           this.backspace(event);
-          break;
-        case A:
-          if (cmdPressed) {
-            this.selectItem(event);
-          }
           break;
       }
     }, false);
@@ -145,28 +139,41 @@ class Checklist {
   appendNewElements(event) {
     event.preventDefault();
 
-    const items = [ ...this._elements.wrapper.querySelectorAll('.' + this.CSS.item) ];
-    const wrapper = this._elements.wrapper;
-    const lastItem = items[items.length - 1].querySelector('.' + this.CSS.textField);
-    const currentNode = window.getSelection().anchorNode;
+    const items = [ ...this._elements.wrapper.querySelectorAll('.' + this.CSS.item) ],
+      wrapper = this._elements.wrapper,
+      currentNode = window.getSelection().anchorNode,
+      currentItem = currentNode.parentNode,
+      lastItem = items[items.length - 1].querySelector('.' + this.CSS.textField),
+      lastItemText = lastItem.innerHTML.replace('<br>', ' ').trim();
+
+    /** Create new checklist item */
     const newItem = this.createChecklistItem();
-    const lastItemText = lastItem.innerHTML.replace('<br>', ' ').trim();
 
     let currentIndex = -1;
 
-    if (currentNode.parentNode.classList.contains(this.CSS.textField)) {
-      currentIndex = items.indexOf(currentNode.parentNode.parentNode);
+    /**
+     * If currently selected element is item's textField, find in items array index of its parent
+     */
+    if (currentItem.classList.contains(this.CSS.textField)) {
+      currentIndex = items.indexOf(currentItem.parentNode);
     } else {
-      currentIndex = items.indexOf(currentNode.parentNode);
+      /**
+       * Otherwise find in items array element's index
+       */
+      currentIndex = items.indexOf(currentItem);
     }
 
-    if (currentIndex !== -1) {
-      wrapper.insertBefore(newItem, wrapper.children[currentIndex + 1]);
-    }
+    /**
+     * Insert new checklist item at specified index
+     */
+    wrapper.insertBefore(newItem, wrapper.children[currentIndex + 1]);
 
-    newItem.querySelector('.' + this.CSS.textField).focus();
+    /**
+     * Move caret to contentEditable textField of new checklist item
+     */
+    this.moveCaretToEnd(newItem.querySelector('.' + this.CSS.textField));
 
-    /** Prevent Default li generation if item is empty */
+    /** Prevent Default li generation if item is empty and get out of list */
     if (currentNode === lastItem && !lastItemText) {
       /** Insert New Block and set caret */
       this.api.blocks.insertNewBlock();
@@ -180,42 +187,24 @@ class Checklist {
    */
   backspace(event) {
     const items = [ ...this._elements.wrapper.querySelectorAll('.' + this.CSS.item) ],
-      firstItem = items[0];
+      currentItem = event.target.parentNode,
+      currentIndex = items.indexOf(currentItem),
+      currentItemText = currentItem.querySelector('.' + this.CSS.textField).innerHTML.replace('<br>', ' ').trim();
 
-    if (!firstItem) {
-      return;
-    }
-
-    let currentItem = event.target.parentNode;
-    let currentIndex = items.indexOf(currentItem);
-
-    if (currentIndex && !currentItem.querySelector('.' + this.CSS.textField).innerHTML.replace('<br>', ' ').trim()) {
+    /**
+     * If not first checklist item and item has no text
+     */
+    if (currentIndex && !currentItemText) {
       event.preventDefault();
       currentItem.remove();
+
+      /**
+       * After deleting the item, move move caret to previous item if it exists
+       */
       if (items[currentIndex - 1]  !== 'undefined') {
         this.moveCaretToEnd(items[currentIndex - 1].querySelector('.' + this.CSS.textField));
-      } else if (items[currentIndex + 1]  !== 'undefined') {
-        this.moveCaretToEnd(items[currentIndex + 1].querySelector('.' + this.CSS.textField));
       }
     }
-  }
-
-  /**
-   * Select LI content by CMD+A
-   * @param {KeyboardEvent} event
-   */
-  selectItem(event) {
-    event.preventDefault();
-
-    const selection = window.getSelection(),
-      currentNode = selection.anchorNode.parentNode,
-      currentItem = currentNode.closest('.' + this.CSS.item),
-      range = new Range();
-
-    range.selectNodeContents(currentItem);
-
-    selection.removeAllRanges();
-    selection.addRange(range);
   }
 
   /**
@@ -284,7 +273,6 @@ class Checklist {
 
   /**
    * Helper for making Elements with attributes
-   *
    * @param  {string} tagName           - new Element tag name
    * @param  {array|string} classNames  - list or name of CSS classname(s)
    * @param  {Object} attributes        - any attributes
@@ -306,6 +294,10 @@ class Checklist {
     return el;
   }
 
+  /**
+   * Moves caret to the end of contentEditable element
+   * @param {HTMLElement} element - contentEditable element
+   */
   moveCaretToEnd(element) {
     const range = document.createRange();
     const selection = window.getSelection();
