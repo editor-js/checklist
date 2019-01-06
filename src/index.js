@@ -139,7 +139,6 @@ class Checklist {
     const items = Array.from(this._elements.wrapper.querySelectorAll('.' + this.CSS.item));
     const wrapper = this._elements.wrapper;
     const currentNode = window.getSelection().anchorNode;
-    const currentItem = currentNode.parentNode;
     const lastItem = items[items.length - 1].querySelector('.' + this.CSS.textField);
     const lastItemText = lastItem.innerHTML.replace('<br>', ' ').trim();
 
@@ -154,24 +153,19 @@ class Checklist {
     /** Create new checklist item */
     const newItem = this.createChecklistItem();
 
-    let currentIndex = -1;
+    let currentItem = currentNode.parentNode;
 
     /**
      * If currently selected element is item's textField, find in items array index of its parent
      */
     if (currentItem.classList.contains(this.CSS.textField)) {
-      currentIndex = items.indexOf(currentItem.parentNode);
-    } else {
-      /**
-       * Otherwise find in items array element's index
-       */
-      currentIndex = items.indexOf(currentItem);
+      currentItem = currentItem.parentNode;
     }
 
     /**
-     * Insert new checklist item at specified index
+     * Insert new checklist item as sibling to currently selected item
      */
-    wrapper.insertBefore(newItem, wrapper.children[currentIndex + 1]);
+    currentItem.parentNode.insertBefore(newItem, currentItem.nextSibling);
 
     /**
      * Move caret to contentEditable textField of new checklist item
