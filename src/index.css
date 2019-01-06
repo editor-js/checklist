@@ -28,6 +28,7 @@
             height: 20px;
             margin: 10px 10px 10px 0;
             border-radius: 50%;
+            border: 1px solid #d0d0d0;
             background: #fff;
             cursor: pointer;
             user-select: none;
@@ -51,6 +52,7 @@
         &--checked {
             ^&-checkbox {
                 background: #388ae5;
+                border-color: #388ae5;
 
                 &:hover {
                     background: #307cd1;

@@ -70,9 +70,7 @@ class Checklist {
    * @public
    */
   render() {
-    this._elements.wrapper = this._make('div', [this.CSS.baseBlock, this.CSS.wrapper], {
-      contentEditable: true
-    });
+    this._elements.wrapper = this._make('div', [this.CSS.baseBlock, this.CSS.wrapper]);
 
     // fill with data
     if (this._data.items.length) {
@@ -138,13 +136,20 @@ class Checklist {
    */
   appendNewElements(event) {
     event.preventDefault();
+    const items = Array.from(this._elements.wrapper.querySelectorAll('.' + this.CSS.item));
+    const wrapper = this._elements.wrapper;
+    const currentNode = window.getSelection().anchorNode;
+    const currentItem = currentNode.parentNode;
+    const lastItem = items[items.length - 1].querySelector('.' + this.CSS.textField);
+    const lastItemText = lastItem.innerHTML.replace('<br>', ' ').trim();
 
-    const items = [ ...this._elements.wrapper.querySelectorAll('.' + this.CSS.item) ],
-      wrapper = this._elements.wrapper,
-      currentNode = window.getSelection().anchorNode,
-      currentItem = currentNode.parentNode,
-      lastItem = items[items.length - 1].querySelector('.' + this.CSS.textField),
-      lastItemText = lastItem.innerHTML.replace('<br>', ' ').trim();
+    /** Prevent Default li generation if item is empty and get out of list */
+    if (currentNode === lastItem && !lastItemText) {
+      /** Insert New Block and set caret */
+      this.api.blocks.insertNewBlock();
+      event.stopPropagation();
+      return;
+    }
 
     /** Create new checklist item */
     const newItem = this.createChecklistItem();
@@ -172,13 +177,6 @@ class Checklist {
      * Move caret to contentEditable textField of new checklist item
      */
     this.moveCaretToEnd(newItem.querySelector('.' + this.CSS.textField));
-
-    /** Prevent Default li generation if item is empty and get out of list */
-    if (currentNode === lastItem && !lastItemText) {
-      /** Insert New Block and set caret */
-      this.api.blocks.insertNewBlock();
-      event.stopPropagation();
-    }
   }
 
   /**
@@ -186,10 +184,10 @@ class Checklist {
    * @param {KeyboardEvent} event
    */
   backspace(event) {
-    const items = [ ...this._elements.wrapper.querySelectorAll('.' + this.CSS.item) ],
-      currentItem = event.target.parentNode,
-      currentIndex = items.indexOf(currentItem),
-      currentItemText = currentItem.querySelector('.' + this.CSS.textField).innerHTML.replace('<br>', ' ').trim();
+    const items = Array.from(this._elements.wrapper.querySelectorAll('.' + this.CSS.item));
+    const currentItem = event.target.parentNode;
+    const currentIndex = items.indexOf(currentItem);
+    const currentItemText = currentItem.querySelector('.' + this.CSS.textField).innerHTML.replace('<br>', ' ').trim();
 
     /**
      * If not first checklist item and item has no text
@@ -235,10 +233,6 @@ class Checklist {
    * @param {ChecklistData} checklistData
    */
   set data(checklistData) {
-    if (!checklistData) {
-      checklistData = {};
-    }
-
     this._data.items = checklistData.items || [];
 
     const oldView = this._elements.wrapper;
