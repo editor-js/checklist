@@ -169,6 +169,16 @@ class Checklist {
     currentItem.parentNode.insertBefore(newItem, currentItem.nextSibling);
 
     /**
+     * Index of newly inserted checklist item
+     */
+    const currentIndex = this._elements.items.indexOf(currentItem) + 1;
+
+    /**
+     * Add new checklist item to tags array
+     */
+    this._elements.items.splice(currentIndex, 0, newItem);
+
+    /**
      * Move caret to contentEditable textField of new checklist item
      */
     this.moveCaretToEnd(newItem.querySelector('.' + this.CSS.textField));
@@ -189,6 +199,11 @@ class Checklist {
     if (currentIndex && !currentItemText) {
       event.preventDefault();
       currentItem.remove();
+
+      /**
+       * Delete checklist item from tags array
+       */
+      this._elements.items.splice(currentIndex, 1);
 
       /**
        * After deleting the item, move move caret to previous item if it exists
