@@ -137,7 +137,6 @@ class Checklist {
   appendNewElements(event) {
     event.preventDefault();
     const items = Array.from(this._elements.wrapper.querySelectorAll('.' + this.CSS.item));
-    const wrapper = this._elements.wrapper;
     const currentNode = window.getSelection().anchorNode;
     const lastItem = items[items.length - 1].querySelector('.' + this.CSS.textField);
     const lastItemText = lastItem.innerHTML.replace('<br>', ' ').trim();
