@@ -50,6 +50,7 @@ class Checklist {
      */
     this._elements = {
       wrapper : null,
+      items : []
     };
 
     /**
@@ -80,6 +81,8 @@ class Checklist {
     } else {
       this._elements.wrapper.appendChild(this.createChecklistItem());
     }
+
+    this._elements.items = Array.from(this._elements.wrapper.querySelectorAll('.' + this.CSS.item));
 
     // add event-listeners
     this._elements.wrapper.addEventListener('keydown', (event) => {
@@ -136,9 +139,9 @@ class Checklist {
    */
   appendNewElements(event) {
     event.preventDefault();
-    const items = Array.from(this._elements.wrapper.querySelectorAll('.' + this.CSS.item));
+    this._elements.items = Array.from(this._elements.wrapper.querySelectorAll('.' + this.CSS.item));
     const currentNode = window.getSelection().anchorNode;
-    const lastItem = items[items.length - 1].querySelector('.' + this.CSS.textField);
+    const lastItem = this._elements.items[this._elements.items.length - 1].querySelector('.' + this.CSS.textField);
     const lastItemText = lastItem.innerHTML.replace('<br>', ' ').trim();
 
     /** Prevent Default li generation if item is empty and get out of list */
@@ -177,9 +180,9 @@ class Checklist {
    * @param {KeyboardEvent} event
    */
   backspace(event) {
-    const items = Array.from(this._elements.wrapper.querySelectorAll('.' + this.CSS.item));
+    this._elements.items = Array.from(this._elements.wrapper.querySelectorAll('.' + this.CSS.item));
     const currentItem = event.target.parentNode;
-    const currentIndex = items.indexOf(currentItem);
+    const currentIndex = this._elements.items.indexOf(currentItem);
     const currentItemText = currentItem.querySelector('.' + this.CSS.textField).innerHTML.replace('<br>', ' ').trim();
 
     /**
@@ -192,8 +195,8 @@ class Checklist {
       /**
        * After deleting the item, move move caret to previous item if it exists
        */
-      if (items[currentIndex - 1]  !== 'undefined') {
-        this.moveCaretToEnd(items[currentIndex - 1].querySelector('.' + this.CSS.textField));
+      if (this._elements.items[currentIndex - 1]  !== 'undefined') {
+        this.moveCaretToEnd(this._elements.items[currentIndex - 1].querySelector('.' + this.CSS.textField));
       }
     }
   }
@@ -242,15 +245,13 @@ class Checklist {
   get data() {
     this._data.items = [];
 
-    const items = this._elements.wrapper.querySelectorAll(`.${this.CSS.item}`);
-
-    for (let i = 0; i < items.length; i++) {
-      const value = items[i].querySelector(`.${this.CSS.textField}`).innerHTML.replace('<br>', ' ').trim();
+    for (let i = 0; i < this._elements.items.length; i++) {
+      const value = this._elements.items[i].querySelector(`.${this.CSS.textField}`).innerHTML.replace('<br>', ' ').trim();
 
       if (value) {
         this._data.items.push({
           text: value,
-          checked: items[i].classList.contains(this.CSS.itemChecked)
+          checked: this._elements.items[i].classList.contains(this.CSS.itemChecked)
         });
       }
     }
