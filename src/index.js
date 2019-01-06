@@ -191,7 +191,13 @@ class Checklist {
   backspace(event) {
     const currentItem = event.target.parentNode;
     const currentIndex = this._elements.items.indexOf(currentItem);
-    const currentItemText = currentItem.querySelector('.' + this.CSS.textField).innerHTML.replace('<br>', ' ').trim();
+    const currentItemText = currentItem.querySelector(`.${this.CSS.textField}`).innerHTML.replace('<br>', ' ').trim();
+    const firstItem = this._elements.items[0];
+    const firstItemText = firstItem.querySelector(`.${this.CSS.textField}`).innerHTML.replace('<br>', ' ').trim();
+
+    if (!firstItemText ) {
+      return;
+    }
 
     /**
      * If not first checklist item and item has no text
