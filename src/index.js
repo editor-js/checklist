@@ -139,7 +139,6 @@ class Checklist {
    */
   appendNewElements(event) {
     event.preventDefault();
-    this._elements.items = Array.from(this._elements.wrapper.querySelectorAll('.' + this.CSS.item));
     const currentNode = window.getSelection().anchorNode;
     const lastItem = this._elements.items[this._elements.items.length - 1].querySelector('.' + this.CSS.textField);
     const lastItemText = lastItem.innerHTML.replace('<br>', ' ').trim();
@@ -180,7 +179,6 @@ class Checklist {
    * @param {KeyboardEvent} event
    */
   backspace(event) {
-    this._elements.items = Array.from(this._elements.wrapper.querySelectorAll('.' + this.CSS.item));
     const currentItem = event.target.parentNode;
     const currentIndex = this._elements.items.indexOf(currentItem);
     const currentItemText = currentItem.querySelector('.' + this.CSS.textField).innerHTML.replace('<br>', ' ').trim();
@@ -244,6 +242,8 @@ class Checklist {
    */
   get data() {
     this._data.items = [];
+
+    this._elements.items = Array.from(this._elements.wrapper.querySelectorAll('.' + this.CSS.item));
 
     for (let i = 0; i < this._elements.items.length; i++) {
       const value = this._elements.items[i].querySelector(`.${this.CSS.textField}`).innerHTML.replace('<br>', ' ').trim();
