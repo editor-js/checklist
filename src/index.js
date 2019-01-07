@@ -71,20 +71,22 @@ class Checklist {
    * @public
    */
   render() {
-    this._elements.wrapper = this._make('div', [this.CSS.baseBlock, this.CSS.wrapper], {
-      contentEditable: true
-    });
+    this._elements.wrapper = this._make('div', [this.CSS.baseBlock, this.CSS.wrapper]);
 
     // fill with data
     if (this._data.items.length) {
       this._data.items.forEach(item => {
-        this._elements.wrapper.appendChild(this.createChecklistItem(item));
+        const newItem = this.createChecklistItem(item);
+
+        this._elements.items.push(newItem);
+        this._elements.wrapper.appendChild(newItem);
       });
     } else {
-      this._elements.wrapper.appendChild(this.createChecklistItem());
-    }
+      const newItem = this.createChecklistItem();
 
-    this._elements.items = Array.from(this._elements.wrapper.querySelectorAll('.' + this.CSS.item));
+      this._elements.items.push(newItem);
+      this._elements.wrapper.appendChild(newItem);
+    }
 
     // add event-listeners
     this._elements.wrapper.addEventListener('keydown', (event) => {
@@ -92,7 +94,7 @@ class Checklist {
 
       switch (event.keyCode) {
         case ENTER:
-          this.appendNewElements(event);
+          this.appendNewElement(event);
           break;
         case BACKSPACE:
           this.backspace(event);
@@ -109,16 +111,13 @@ class Checklist {
    * @return {HTMLElement} checkListItem - new element of checklist
    */
   createChecklistItem(item = {}) {
-    const checkListItem = this._make('div', this.CSS.item, {
-      contentEditable: false
-    });
+    const checkListItem = this._make('div', this.CSS.item);
 
-    const checkbox = this._make('span', this.CSS.checkbox, {
-      contentEditable: false
-    });
+    const checkbox = this._make('span', this.CSS.checkbox);
 
     const textField = this._make('div', this.CSS.textField, {
-      innerHTML: item.text ? item.text : '', contentEditable: true
+      innerHTML: item.text ? item.text : '',
+      contentEditable: true
     });
 
     if (item.checked) {
@@ -139,7 +138,7 @@ class Checklist {
    * Append new elements to the list by pressing Enter
    * @param {KeyboardEvent} event
    */
-  appendNewElements(event) {
+  appendNewElement(event) {
     event.preventDefault();
     const currentNode = window.getSelection().anchorNode;
     const lastItem = this._elements.items[this._elements.items.length - 1].querySelector('.' + this.CSS.textField);
@@ -168,7 +167,7 @@ class Checklist {
     /**
      * Insert new checklist item as sibling to currently selected item
      */
-    currentItem.parentNode.insertBefore(newItem, currentItem.nextSibling);
+    this._elements.wrapper.insertBefore(newItem, currentItem.nextSibling);
 
     /**
      * Index of newly inserted checklist item
@@ -265,8 +264,6 @@ class Checklist {
    */
   get data() {
     this._data.items = [];
-
-    this._elements.items = Array.from(this._elements.wrapper.querySelectorAll('.' + this.CSS.item));
 
     for (let i = 0; i < this._elements.items.length; i++) {
       const value = this._elements.items[i].querySelector(`.${this.CSS.textField}`).innerHTML.replace('<br>', ' ').trim();
