@@ -71,7 +71,9 @@ class Checklist {
    * @public
    */
   render() {
-    this._elements.wrapper = this._make('div', [this.CSS.baseBlock, this.CSS.wrapper]);
+    this._elements.wrapper = this._make('div', [this.CSS.baseBlock, this.CSS.wrapper], {
+      contentEditable: true
+    });
 
     // fill with data
     if (this._data.items.length) {
