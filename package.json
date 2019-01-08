@@ -18,7 +18,6 @@
     "email": "team@ifmo.su"
   },
   "devDependencies": {
-    "@babel/polyfill": "^7.2.5",
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.5",
     "babel-preset-env": "^1.7.0",

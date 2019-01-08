@@ -4,9 +4,9 @@
 require('./index.css').toString();
 
 /**
- * Require polyfill
+ * Require polyfills
  */
-require('@babel/polyfill');
+require('./polyfills.js');
 
 /**
  * @typedef {object} ChecklistData
