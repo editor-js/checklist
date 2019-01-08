@@ -4,7 +4,7 @@
 
 This Tool for the [CodeX Editor](https://ifmo.su/editor) allows you to add  checklists to your texts.
 
-![](https://capella.pics/24c780d0-f7f5-44b6-b1f4-4fb4359dac98.jpg)
+![](https://capella.pics/f099dd9b-1321-47f6-b9e1-97fc1ef40b6a.jpg)
 
 ## Installation
 
