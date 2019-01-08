@@ -35,7 +35,7 @@ class Checklist {
    */
   static get toolbox() {
     return {
-      icon: '<svg width="17" height="13" viewBox="0 0 17 13" xmlns="http://www.w3.org/2000/svg"> <path d="M5.625 4.85h9.25a1.125 1.125 0 0 1 0 2.25h-9.25a1.125 1.125 0 0 1 0-2.25zm0-4.85h9.25a1.125 1.125 0 0 1 0 2.25h-9.25a1.125 1.125 0 0 1 0-2.25zm0 9.85h9.25a1.125 1.125 0 0 1 0 2.25h-9.25a1.125 1.125 0 0 1 0-2.25zm-4.5-5a1.125 1.125 0 1 1 0 2.25 1.125 1.125 0 0 1 0-2.25zm0-4.85a1.125 1.125 0 1 1 0 2.25 1.125 1.125 0 0 1 0-2.25zm0 9.85a1.125 1.125 0 1 1 0 2.25 1.125 1.125 0 0 1 0-2.25z"/></svg>',
+      icon: '<svg width="14" height="14" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg"> <path d="M7 14A7 7 0 1 1 7 0a7 7 0 0 1 0 14zm0-2.234a4.766 4.766 0 1 0 0-9.532 4.766 4.766 0 0 0 0 9.532zm-.63-4.354l2.528-2.528 1.298 1.299L7.67 8.71l-1.299 1.3-2.773-2.774 1.299-1.299L6.37 7.412z"/></svg>',
       title: 'Checklist'
     };
   }
@@ -108,15 +108,23 @@ class Checklist {
     }, false);
 
     this._elements.wrapper.addEventListener('click', (event) => {
-      const checkListItem = event.target.closest(`.${this.CSS.item}`);
-      const checkbox = checkListItem.querySelector(`.${this.CSS.checkbox}`);
-
-      if (event.target === checkbox) {
-        checkListItem.classList.toggle(this.CSS.itemChecked);
-      }
+      this.toggleCheckbox(event);
     });
 
     return this._elements.wrapper;
+  }
+
+  /**
+   * Toggle checklist item state
+   * @param event
+   */
+  toggleCheckbox(event) {
+    const checkListItem = event.target.closest(`.${this.CSS.item}`);
+    const checkbox = checkListItem.querySelector(`.${this.CSS.checkbox}`);
+
+    if (checkbox.contains(event.target)) {
+      checkListItem.classList.toggle(this.CSS.itemChecked);
+    }
   }
 
   /**
