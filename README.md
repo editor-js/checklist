@@ -19,7 +19,7 @@ npm i --save-dev codex.editor.checklist
 Include module at your application
 
 ```javascript
-const List = require('codex.editor.checklist');
+const Checklist = require('codex.editor.checklist');
 ```
 
 ### Download to your project's source dir

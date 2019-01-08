@@ -1,18 +1,8 @@
 .cdx-checklist {
-    min-height: 1.45em;
-    margin: 0;
-    padding-left: 0;
-    outline: none;
-
     &__item {
         display: flex;
-        position: relative;
-        min-height: 1.45em;
-        width: auto;
-        margin-bottom: 3px;
         padding: 0 10px;
         box-sizing: content-box;
-        list-style: none;
 
         &-text {
             outline: none;
@@ -32,6 +22,10 @@
             background: #fff;
             cursor: pointer;
             user-select: none;
+
+            &:hover {
+                border-color: #b5b5b5;
+            }
 
             &::after {
                 position: absolute;

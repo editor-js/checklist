@@ -4,8 +4,13 @@
 require('./index.css').toString();
 
 /**
+ * Require polyfill
+ */
+require('@babel/polyfill');
+
+/**
  * @typedef {object} ChecklistData
- * @property {array} items - li elements
+ * @property {array} items - checklist elements
  */
 
 /**
@@ -102,6 +107,15 @@ class Checklist {
       }
     }, false);
 
+    this._elements.wrapper.addEventListener('click', (event) => {
+      const checkListItem = event.target.closest(`.${this.CSS.item}`);
+      const checkbox = checkListItem.querySelector(`.${this.CSS.checkbox}`);
+
+      if (event.target === checkbox) {
+        checkListItem.classList.toggle(this.CSS.itemChecked);
+      }
+    });
+
     return this._elements.wrapper;
   }
 
@@ -127,10 +141,6 @@ class Checklist {
     checkListItem.appendChild(checkbox);
     checkListItem.appendChild(textField);
 
-    checkbox.addEventListener('click', () => {
-      checkListItem.classList.toggle(this.CSS.itemChecked);
-    });
-
     return checkListItem;
   }
 
@@ -141,10 +151,12 @@ class Checklist {
   appendNewElement(event) {
     event.preventDefault();
     const currentNode = window.getSelection().anchorNode;
-    const lastItem = this._elements.items[this._elements.items.length - 1].querySelector('.' + this.CSS.textField);
+    const lastItem = this._elements.items[this._elements.items.length - 1].querySelector(`.${this.CSS.textField}`);
     const lastItemText = lastItem.innerHTML.replace('<br>', ' ').trim();
 
-    /** Prevent Default li generation if item is empty and get out of list */
+    /**
+     * Prevent checklist item generation if last item is empty and get out of checklist
+     */
     if (currentNode === lastItem && !lastItemText) {
       /** Insert New Block and set caret */
       this.api.blocks.insertNewBlock();
@@ -152,17 +164,15 @@ class Checklist {
       return;
     }
 
-    /** Create new checklist item */
+    /**
+     * Create new checklist item
+     */
     const newItem = this.createChecklistItem();
 
-    let currentItem = currentNode.parentNode;
-
     /**
-     * If currently selected element is item's textField, find in items array index of its parent
+     * Find closest checklist item
      */
-    if (currentItem.classList.contains(this.CSS.textField)) {
-      currentItem = currentItem.parentNode;
-    }
+    let currentItem = currentNode.parentNode.closest(`.${this.CSS.item}`);
 
     /**
      * Insert new checklist item as sibling to currently selected item
@@ -182,7 +192,7 @@ class Checklist {
     /**
      * Move caret to contentEditable textField of new checklist item
      */
-    this.moveCaretToEnd(newItem.querySelector('.' + this.CSS.textField));
+    this.moveCaretToEnd(newItem.querySelector(`.${this.CSS.textField}`));
   }
 
   /**
@@ -190,7 +200,7 @@ class Checklist {
    * @param {KeyboardEvent} event
    */
   backspace(event) {
-    const currentItem = event.target.parentNode;
+    const currentItem = event.target.closest(`.${this.CSS.item}`);
     const currentIndex = this._elements.items.indexOf(currentItem);
     const currentItemText = currentItem.querySelector(`.${this.CSS.textField}`).innerHTML.replace('<br>', ' ').trim();
     const firstItem = this._elements.items[0];
@@ -216,7 +226,7 @@ class Checklist {
        * After deleting the item, move move caret to previous item if it exists
        */
       if (this._elements.items[currentIndex - 1]  !== 'undefined') {
-        this.moveCaretToEnd(this._elements.items[currentIndex - 1].querySelector('.' + this.CSS.textField));
+        this.moveCaretToEnd(this._elements.items[currentIndex - 1].querySelector(`.${this.CSS.textField}`));
       }
     }
   }
