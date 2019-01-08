@@ -42,11 +42,9 @@ class Checklist {
 
   /**
    * Render plugin`s main Element and fill it with saved data
-   *
-   * @param {{data: ChecklistData, config: object, api: object}}
-   *   data — previously saved data
-   *   config - user config for Tool
-   *   api - CodeX Editor API
+   * @param {ChecklistData} data - previously saved data
+   * @param {object} config - user config for Tool
+   * @param {object} api - CodeX Editor API
    */
   constructor({data, config, api}) {
     /**
