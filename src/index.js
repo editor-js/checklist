@@ -113,6 +113,17 @@ class Checklist {
   }
 
   /**
+   * Validate data: check if Checklist has items
+   *
+   * @param {ChecklistData} savedData — data received after saving
+   * @returns {boolean} false if saved data is not correct, otherwise true
+   * @public
+   */
+  validate(savedData) {
+    return !!savedData.items.length;
+  }
+
+  /**
    * Toggle checklist item state
    * @param event
    */
