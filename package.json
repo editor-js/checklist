@@ -1,14 +1,16 @@
 {
-  "name": "codex.editor.checklist",
+  "name": "@editorjs/checklist",
   "version": "1.0.0",
   "keywords": [
     "codex editor",
     "checklist",
-    "tool"
+    "tool",
+    "editor.js",
+    "editorjs"
   ],
-  "description": "Checklist Tool for CodeX.Editor",
+  "description": "Checklist Tool for Editor.js",
   "license": "MIT",
-  "repository": "https://github.com/codex-editor/checklist",
+  "repository": "https://github.com/editorjs/checklist",
   "main": "./dist/bundle.js",
   "scripts": {
     "build": "webpack --config ./webpack.config.js --mode production --watch"
