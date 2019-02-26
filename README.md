@@ -13,7 +13,7 @@ This Tool for the [Editor.js](https://ifmo.su/editor) allows you to add  checkli
 Get the package
 
 ```shell
-npm i --save-dev codex.editor.checklist
+npm i --save-dev @editorjs/checklist
 ```
 
 Include module at your application
@@ -33,7 +33,7 @@ You can load specific version of package from [jsDelivr CDN](https://www.jsdeliv
 
 `https://cdn.jsdelivr.net/npm/@editorjs/checklist@1.0.0`
 
-Then require this script on page with CodeX Editor.
+Then require this script on page with Editor.js.
 
 ```html
 <script src="..."></script>
@@ -41,7 +41,7 @@ Then require this script on page with CodeX Editor.
 
 ## Usage
 
-Add a new Tool to the `tools` property of the CodeX Editor initial config.
+Add a new Tool to the `tools` property of the Editor.js initial config.
 
 ```javascript
 var editor = EditorJS({
