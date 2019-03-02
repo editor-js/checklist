@@ -2,7 +2,7 @@
 
 # Checklist Tool for Editor.js
 
-This Tool for the [Editor.js](https://ifmo.su/editor) allows you to add  checklists to your texts.
+This Tool for the [Editor.js](https://editorjs.io) allows you to add  checklists to your texts.
 
 ![](https://capella.pics/f099dd9b-1321-47f6-b9e1-97fc1ef40b6a.jpg)
 
