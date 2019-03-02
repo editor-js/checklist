@@ -1,8 +1,8 @@
-![](https://badgen.net/badge/CodeX%20Editor/v2.0/blue)
+![](https://badgen.net/badge/Editor.js/v2.0/blue)
 
-# Checklist Tool for CodeX Editor
+# Checklist Tool for Editor.js
 
-This Tool for the [CodeX Editor](https://ifmo.su/editor) allows you to add  checklists to your texts.
+This Tool for the [Editor.js](https://editorjs.io) allows you to add  checklists to your texts.
 
 ![](https://capella.pics/f099dd9b-1321-47f6-b9e1-97fc1ef40b6a.jpg)
 
@@ -13,13 +13,13 @@ This Tool for the [CodeX Editor](https://ifmo.su/editor) allows you to add  chec
 Get the package
 
 ```shell
-npm i --save-dev codex.editor.checklist
+npm i --save-dev @editorjs/checklist
 ```
 
 Include module at your application
 
 ```javascript
-const Checklist = require('codex.editor.checklist');
+const Checklist = require('@editorjs/checklist');
 ```
 
 ### Download to your project's source dir
@@ -29,11 +29,11 @@ const Checklist = require('codex.editor.checklist');
 
 ### Load from CDN
 
-You can load specific version of package from [jsDelivr CDN](https://www.jsdelivr.com/package/npm/codex.editor.checklist).
+You can load specific version of package from [jsDelivr CDN](https://www.jsdelivr.com/package/npm/@editorjs/checklist).
 
-`https://cdn.jsdelivr.net/npm/codex.editor.checklist@1.0.0`
+`https://cdn.jsdelivr.net/npm/@editorjs/checklist@1.0.0`
 
-Then require this script on page with CodeX Editor.
+Then require this script on page with Editor.js.
 
 ```html
 <script src="..."></script>
@@ -41,10 +41,10 @@ Then require this script on page with CodeX Editor.
 
 ## Usage
 
-Add a new Tool to the `tools` property of the CodeX Editor initial config.
+Add a new Tool to the `tools` property of the Editor.js initial config.
 
 ```javascript
-var editor = CodexEditor({
+var editor = EditorJS({
   ...
   
   tools: {

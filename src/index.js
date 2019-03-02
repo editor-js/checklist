@@ -14,7 +14,7 @@ require('./polyfills.js');
  */
 
 /**
- * Checklist Tool for the CodeX Editor 2.0
+ * Checklist Tool for the Editor.js 2.0
  */
 class Checklist {
   /**
@@ -44,7 +44,7 @@ class Checklist {
    * Render plugin`s main Element and fill it with saved data
    * @param {ChecklistData} data - previously saved data
    * @param {object} config - user config for Tool
-   * @param {object} api - CodeX Editor API
+   * @param {object} api - Editor.js API
    */
   constructor({data, config, api}) {
     /**
