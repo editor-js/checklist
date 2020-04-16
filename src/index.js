@@ -175,8 +175,16 @@ class Checklist {
      * Prevent checklist item generation if last item is empty and get out of checklist
      */
     if (currentNode === lastItem && !lastItemText) {
+      /** Remove last empty item */
+      const currentItem = currentNode.closest(`.${this.CSS.item}`);
+      const currentIndex = this._elements.items.indexOf(currentItem);
+      currentItem.remove();
+      this._elements.items.splice(currentIndex, 1);
+
       /** Insert New Block and set caret */
-      this.api.blocks.insertNewBlock();
+      const block = this.api.blocks.getCurrentBlockIndex();
+      this.api.blocks.insert();
+      this.api.caret.setToBlock(block + 1);
       event.stopPropagation();
       return;
     }
