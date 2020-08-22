@@ -10,7 +10,7 @@ require('./polyfills.js');
 
 /**
  * @typedef {object} ChecklistData
- * @property {array} items - checklist elements
+ * @property {Array} items - checklist elements
  */
 
 /**
@@ -18,7 +18,17 @@ require('./polyfills.js');
  */
 class Checklist {
   /**
+   * Notify core that read-only mode is supported
+   *
+   * @returns {boolean}
+   */
+  static get isReadOnlySupported() {
+    return true;
+  }
+
+  /**
    * Allow to use native Enter behaviour
+   *
    * @returns {boolean}
    * @public
    */
@@ -31,37 +41,41 @@ class Checklist {
    * icon - Tool icon's SVG
    * title - title to show in toolbox
    *
-   * @return {{icon: string, title: string}}
+   * @returns {{icon: string, title: string}}
    */
   static get toolbox() {
     return {
       icon: '<svg width="15" height="15" viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg"><path d="M7.5 15a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15zm0-2.394a5.106 5.106 0 1 0 0-10.212 5.106 5.106 0 0 0 0 10.212zm-.675-4.665l2.708-2.708 1.392 1.392-2.708 2.708-1.392 1.391-2.971-2.971L5.245 6.36l1.58 1.58z"/></svg>',
-      title: 'Checklist'
+      title: 'Checklist',
     };
   }
 
   /**
    * Render plugin`s main Element and fill it with saved data
+   *
    * @param {ChecklistData} data - previously saved data
    * @param {object} config - user config for Tool
    * @param {object} api - Editor.js API
+   * @param {boolean} readOnly - read only mode flag
    */
-  constructor({data, config, api}) {
+  constructor({ data, config, api, readOnly }) {
     /**
      * HTML nodes
+     *
      * @private
      */
     this._elements = {
-      wrapper : null,
-      items : []
+      wrapper: null,
+      items: [],
     };
+    this.readOnly = readOnly;
 
-    /**
-     * Tool's data
-     * @type {ChecklistData}
-     * */
+    //
+    // Tool's data
+    // @type {ChecklistData}
+    //
     this._data = {
-      items: []
+      items: [],
     };
 
     this.api = api;
@@ -70,7 +84,8 @@ class Checklist {
 
   /**
    * Returns checklist tag with items
-   * @return {Element}
+   *
+   * @returns {Element}
    * @public
    */
   render() {
@@ -89,6 +104,13 @@ class Checklist {
 
       this._elements.items.push(newItem);
       this._elements.wrapper.appendChild(newItem);
+    }
+
+    /**
+     * If read-only mode is on, fo not bind events
+     */
+    if (this.readOnly) {
+      return this._elements.wrapper;
     }
 
     // add event-listeners
@@ -125,6 +147,7 @@ class Checklist {
 
   /**
    * Toggle checklist item state
+   *
    * @param event
    */
   toggleCheckbox(event) {
@@ -138,8 +161,9 @@ class Checklist {
 
   /**
    * Create Checklist items
+   *
    * @param {ChecklistData} item - data.item
-   * @return {HTMLElement} checkListItem - new element of checklist
+   * @returns {HTMLElement} checkListItem - new element of checklist
    */
   createChecklistItem(item = {}) {
     const checkListItem = this._make('div', this.CSS.item);
@@ -148,7 +172,7 @@ class Checklist {
 
     const textField = this._make('div', this.CSS.textField, {
       innerHTML: item.text ? item.text : '',
-      contentEditable: true
+      contentEditable: !this.readOnly,
     });
 
     if (item.checked) {
@@ -163,6 +187,7 @@ class Checklist {
 
   /**
    * Append new elements to the list by pressing Enter
+   *
    * @param {KeyboardEvent} event
    */
   appendNewElement(event) {
@@ -178,6 +203,7 @@ class Checklist {
       /** Insert New Block and set caret */
       this.api.blocks.insertNewBlock();
       event.stopPropagation();
+
       return;
     }
 
@@ -189,7 +215,7 @@ class Checklist {
     /**
      * Find closest checklist item
      */
-    let currentItem = currentNode.parentNode.closest(`.${this.CSS.item}`);
+    const currentItem = currentNode.parentNode.closest(`.${this.CSS.item}`);
 
     /**
      * Insert new checklist item as sibling to currently selected item
@@ -214,6 +240,7 @@ class Checklist {
 
   /**
    * Handle backspace
+   *
    * @param {KeyboardEvent} event
    */
   backspace(event) {
@@ -223,7 +250,7 @@ class Checklist {
     const firstItem = this._elements.items[0];
     const firstItemText = firstItem.querySelector(`.${this.CSS.textField}`).innerHTML.replace('<br>', ' ').trim();
 
-    if (!firstItemText ) {
+    if (!firstItemText) {
       return;
     }
 
@@ -242,14 +269,14 @@ class Checklist {
       /**
        * After deleting the item, move move caret to previous item if it exists
        */
-      if (this._elements.items[currentIndex - 1]  !== 'undefined') {
+      if (this._elements.items[currentIndex - 1] !== 'undefined') {
         this.moveCaretToEnd(this._elements.items[currentIndex - 1].querySelector(`.${this.CSS.textField}`));
       }
     }
   }
 
   /**
-   * @return {ChecklistData}
+   * @returns {ChecklistData}
    * @public
    */
   save() {
@@ -258,6 +285,7 @@ class Checklist {
 
   /**
    * Styles
+   *
    * @private
    */
   get CSS() {
@@ -267,12 +295,13 @@ class Checklist {
       item: 'cdx-checklist__item',
       itemChecked: 'cdx-checklist__item--checked',
       checkbox: 'cdx-checklist__item-checkbox',
-      textField: 'cdx-checklist__item-text'
+      textField: 'cdx-checklist__item-text',
     };
   }
 
   /**
    * Checklist data setter
+   *
    * @param {ChecklistData} checklistData
    */
   set data(checklistData) {
@@ -287,7 +316,8 @@ class Checklist {
 
   /**
    * Return Checklist data
-   * @return {ChecklistData}
+   *
+   * @returns {ChecklistData}
    */
   get data() {
     this._data.items = [];
@@ -298,7 +328,7 @@ class Checklist {
       if (value) {
         this._data.items.push({
           text: value,
-          checked: this._elements.items[i].classList.contains(this.CSS.itemChecked)
+          checked: this._elements.items[i].classList.contains(this.CSS.itemChecked),
         });
       }
     }
@@ -308,10 +338,11 @@ class Checklist {
 
   /**
    * Helper for making Elements with attributes
+   *
    * @param  {string} tagName           - new Element tag name
-   * @param  {array|string} classNames  - list or name of CSS classname(s)
-   * @param  {Object} attributes        - any attributes
-   * @return {Element}
+   * @param  {Array|string} classNames  - list or name of CSS classname(s)
+   * @param  {object} attributes        - any attributes
+   * @returns {Element}
    */
   _make(tagName, classNames = null, attributes = {}) {
     const el = document.createElement(tagName);
@@ -322,7 +353,7 @@ class Checklist {
       el.classList.add(classNames);
     }
 
-    for (let attrName in attributes) {
+    for (const attrName in attributes) {
       el[attrName] = attributes[attrName];
     }
 
@@ -331,6 +362,7 @@ class Checklist {
 
   /**
    * Moves caret to the end of contentEditable element
+   *
    * @param {HTMLElement} element - contentEditable element
    */
   moveCaretToEnd(element) {
