@@ -70,10 +70,11 @@ class Checklist {
     };
     this.readOnly = readOnly;
 
-    //
-    // Tool's data
-    // @type {ChecklistData}
-    //
+    /**
+     * Tool's data
+     *
+     * @type {ChecklistData}
+     */
     this._data = {
       items: [],
     };
