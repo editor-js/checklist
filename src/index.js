@@ -107,7 +107,7 @@ class Checklist {
     }
 
     /**
-     * If read-only mode is on, fo not bind events
+     * If read-only mode is on, do not bind events
      */
     if (this.readOnly) {
       return this._elements.wrapper;
