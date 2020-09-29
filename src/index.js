@@ -87,7 +87,6 @@ class Checklist {
    * Returns checklist tag with items
    *
    * @returns {Element}
-   * @public
    */
   render() {
     this._elements.wrapper = this._make('div', [this.CSS.baseBlock, this.CSS.wrapper]);
@@ -278,7 +277,6 @@ class Checklist {
 
   /**
    * @returns {ChecklistData}
-   * @public
    */
   save() {
     return this.data;
