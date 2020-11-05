@@ -117,7 +117,7 @@ export default class Checklist {
     /**
      * Fill or create tool's data structure
      */
-    this.data = data || { items: [] };
+    this.data = data || {};
   }
 
   /**
@@ -132,10 +132,12 @@ export default class Checklist {
      * If there is no data, create first empty item
      */
     if (!this.data.items) {
-      this.data.items.push({
-        text: '',
-        checked: false,
-      });
+      this.data.items = [
+        {
+          text: '',
+          checked: false,
+        },
+      ];
     }
 
     this.data.items.forEach(item => {
@@ -275,6 +277,8 @@ export default class Checklist {
 
       if (isEmptyItem) {
         const currentBlockIndex = this.api.blocks.getCurrentBlockIndex();
+
+        currentItem.remove();
 
         this.api.blocks.insert();
         this.api.caret.setToBlock(currentBlockIndex + 1);
