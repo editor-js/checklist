@@ -23,8 +23,9 @@ module.exports = {
             loader: 'postcss-loader',
             options: {
               plugins: [
+                require('postcss-css-variables'),
                 require('postcss-nested-ancestors'),
-                require('postcss-nested')
+                require('postcss-nested'),
               ]
             }
           }
@@ -37,6 +38,7 @@ module.exports = {
     publicPath: '/',
     filename: 'bundle.js',
     library: 'Checklist',
-    libraryTarget: 'umd'
+    libraryTarget: 'umd',
+    libraryExport: 'default',
   }
 };
