@@ -1,13 +1,19 @@
 .cdx-checklist {
+    --padding: 5px;
+    --color-border: #d0d0d0;
+    --color-border-hover: #b5b5b5;
+    --color-bg-checked: #388ae5;
+    --color-bg-checked-hover: #307cd1;
+    --color-tick: #fff;
+
     &__item {
         display: flex;
-        padding: 0 10px;
         box-sizing: content-box;
 
         &-text {
             outline: none;
             flex-grow: 1;
-            padding: 10px 0;
+            padding: var(--padding) 0;
         }
 
         &-checkbox {
@@ -16,24 +22,26 @@
             position: relative;
             width: 20px;
             height: 20px;
-            margin: 10px 10px 10px 0;
+            margin:  var(--padding);
+            margin-left: 0;
+            margin-right: 7px;
             border-radius: 50%;
-            border: 1px solid #d0d0d0;
+            border: 1px solid var(--color-border);
             background: #fff;
             cursor: pointer;
             user-select: none;
 
             &:hover {
-                border-color: #b5b5b5;
+                border-color: var(--color-border-hover);
             }
 
             &::after {
                 position: absolute;
-                top: 5px;
+                top: 6px;
                 left: 5px;
-                width: 8px;
-                height: 5px;
-                border: 2px solid #fcfff4;
+                width: 9px;
+                height: 4px;
+                border: 2px solid var(--color-tick);
                 border-top: none;
                 border-right: none;
                 background: transparent;
@@ -45,11 +53,11 @@
 
         &--checked {
             ^&-checkbox {
-                background: #388ae5;
-                border-color: #388ae5;
+                background: var(--color-bg-checked);
+                border-color: var(--color-bg-checked);
 
                 &:hover {
-                    background: #307cd1;
+                    background: var(--color-bg-checked-hover);
                 }
 
                 &::after {
