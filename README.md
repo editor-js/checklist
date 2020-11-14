@@ -31,7 +31,7 @@ const Checklist = require('@editorjs/checklist');
 
 You can load specific version of package from [jsDelivr CDN](https://www.jsdelivr.com/package/npm/@editorjs/checklist).
 
-`https://cdn.jsdelivr.net/npm/@editorjs/checklist@1.0.0`
+`https://cdn.jsdelivr.net/npm/@editorjs/checklist@latest`
 
 Then require this script on page with Editor.js.
 
