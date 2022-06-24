@@ -281,7 +281,7 @@ export default class Checklist {
         currentItem.remove();
 
         this.api.blocks.insert();
-        this.api.caret.setToBlock(currentBlockIndex + 1);
+        this.api.caret.setToBlock(currentBlockIndex);
 
         return;
       }
