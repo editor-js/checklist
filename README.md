@@ -4,7 +4,7 @@
 
 This Tool for the [Editor.js](https://editorjs.io) allows you to add  checklists to your texts.
 
-![](https://capella.pics/f099dd9b-1321-47f6-b9e1-97fc1ef40b6a.jpg)
+![](assets/68747470733a2f2f636170656c6c612e706963732f66303939646439622d313332312d343766362d623965312d3937666331656634306236612e6a7067.jpeg)
 
 ## Installation
 
@@ -46,7 +46,7 @@ Add a new Tool to the `tools` property of the Editor.js initial config.
 ```javascript
 var editor = EditorJS({
   ...
-  
+
   tools: {
     ...
     checklist: {
@@ -54,7 +54,7 @@ var editor = EditorJS({
       inlineToolbar: true,
     },
   }
-  
+
   ...
 });
 ```
