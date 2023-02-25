@@ -1,9 +1,11 @@
 .cdx-checklist {
     --padding: 5px;
-    --color-border: #d0d0d0;
-    --color-border-hover: #b5b5b5;
-    --color-bg-checked: #388ae5;
-    --color-bg-checked-hover: #307cd1;
+    --radius-border: 5px;
+    --checkbox-background: #fff;
+    --color-border: #C9C9C9;
+    --color-bg-checked: #369FFF;
+    --color-bg-checked-hover: #0059AB;
+    --color-tick-hover: #000;
     --color-tick: #fff;
 
     &__item {
@@ -20,26 +22,31 @@
             display: inline-block;
             flex-shrink: 0;
             position: relative;
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             margin:  var(--padding);
             margin-left: 0;
-            margin-right: 7px;
-            border-radius: 50%;
+            margin-right: 10px;
+            border-radius: var(--radius-border);
             border: 1px solid var(--color-border);
-            background: #fff;
+            background: var(--checkbox-background);
             cursor: pointer;
             user-select: none;
 
             &:hover {
-                border-color: var(--color-border-hover);
+                &::after {
+                    border: 2px solid var(--color-tick-hover);
+                    opacity: 1;
+                    border-top: none;
+                    border-right: none;
+                }
             }
 
             &::after {
                 position: absolute;
-                top: 6px;
+                top: 5px;
                 left: 5px;
-                width: 9px;
+                width: 7px;
                 height: 4px;
                 border: 2px solid var(--color-tick);
                 border-top: none;
@@ -47,7 +54,23 @@
                 background: transparent;
                 content: '';
                 opacity: 0;
-                transform: rotate(-45deg);
+                transform: scale(1.0) rotate(-45deg);
+                transition: transform 400ms ease-out, opacity 400ms;
+            }
+
+            &::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                border-radius: 100%;
+                background-color: var(--color-bg-checked);
+                visibility: hidden;
+                pointer-events: none;
+                transform: scale(1);
+                transition: transform 400ms ease-out, opacity 400ms;
             }
         }
 
@@ -58,12 +81,32 @@
 
                 &:hover {
                     background: var(--color-bg-checked-hover);
+                    border-color: var(--color-bg-checked-hover);
                 }
 
                 &::after {
+                    border: 2px solid var(--color-tick);
+                    border-top: none;
+                    border-right: none;
+                    animation: check-sign-in 250ms ease-in;
                     opacity: 1;
                 }
+
+                &::before {
+                    opacity: 0;
+                    visibility: visible;
+                    transform: scale(3.5);
+                }
             }
+        }
+    }
+
+    @keyframes check-sign-in {
+        from {
+            transform: scale(.7) rotate(-45deg);
+        }
+        80% {
+            transform: scale(1.1) rotate(-45deg);
         }
     }
 }
