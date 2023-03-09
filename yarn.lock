@@ -730,10 +730,10 @@
     lodash "^4.17.19"
     to-fast-properties "^2.0.0"
 
-"@codexteam/icons@^0.0.4":
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/@codexteam/icons/-/icons-0.0.4.tgz#8b72dcd3f3a1b0d880bdceb2abebd74b46d3ae13"
-  integrity sha512-V8N/TY2TGyas4wLrPIFq7bcow68b3gu8DfDt1+rrHPtXxcexadKauRJL6eQgfG7Z0LCrN4boLRawR4S9gjIh/Q==
+"@codexteam/icons@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.npmjs.org/@codexteam/icons/-/icons-0.3.0.tgz#62380b4053d487a257de443864b5c72dafab95e6"
+  integrity sha512-fJE9dfFdgq8xU+sbsxjH0Kt8Yeatw9xHBJWb77DhRkEXz3OCoIS6hrRC1ewHEryxzIjxD8IyQrRq2f+Gz3BcmA==
 
 "@types/json-schema@^7.0.5":
   version "7.0.6"

@@ -47,7 +47,7 @@ export function make(tagName, classNames = null, attributes = {}) {
   }
 
   for (const attrName in attributes) {
-    el[attrName] = attributes[attrName];
+    el.setAttribute(attrName, attributes[attrName]);
   }
 
   return el;

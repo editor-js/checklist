@@ -1,5 +1,6 @@
 .cdx-checklist {
-    --padding: 5px;
+    --padding: 4px;
+    --checkbox-margin: 5px;
     --radius-border: 5px;
     --checkbox-background: #fff;
     --color-border: #C9C9C9;
@@ -11,6 +12,9 @@
     &__item {
         display: flex;
         box-sizing: content-box;
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 22px;
 
         &-text {
             outline: none;
@@ -19,83 +23,81 @@
         }
 
         &-checkbox {
-            display: inline-block;
-            flex-shrink: 0;
-            position: relative;
-            width: 18px;
-            height: 18px;
-            margin:  var(--padding);
-            margin-left: 0;
-            margin-right: 10px;
-            border-radius: var(--radius-border);
-            border: 1px solid var(--color-border);
-            background: var(--checkbox-background);
+            margin: var(--checkbox-margin) 0;
+            width: 22px;
+            height: 22px;
+            margin-right: 8px;
             cursor: pointer;
-            user-select: none;
 
-            &:hover {
-                &::after {
-                    border: 2px solid var(--color-tick-hover);
-                    opacity: 1;
-                    border-top: none;
-                    border-right: none;
+            svg {
+                opacity: 0;
+                width: 18px;
+                height: 18px;
+            }
+
+            &:not(&--no-hover):hover {
+                ^&-check {
+                    svg {
+                        opacity: 1;
+                    }
                 }
             }
 
-            &::after {
-                position: absolute;
-                top: 5px;
-                left: 5px;
-                width: 7px;
-                height: 4px;
-                border: 2px solid var(--color-tick);
-                border-top: none;
-                border-right: none;
-                background: transparent;
-                content: '';
-                opacity: 0;
-                transform: scale(1.0) rotate(-45deg);
-                transition: transform 400ms ease-out, opacity 400ms;
-            }
+            &-check {
+                cursor: pointer;
+                display: inline-block;
+                flex-shrink: 0;
+                position: relative;
+                width: 18px;
+                height: 18px;
+                margin-left: 0;
+                border-radius: var(--radius-border);
+                border: 1px solid var(--color-border);
+                background: var(--checkbox-background);
 
-            &::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                right: 0;
-                bottom: 0;
-                left: 0;
-                border-radius: 100%;
-                background-color: var(--color-bg-checked);
-                visibility: hidden;
-                pointer-events: none;
-                transform: scale(1);
-                transition: transform 400ms ease-out, opacity 400ms;
+                &::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    bottom: 0;
+                    left: 0;
+                    border-radius: 100%;
+                    background-color: var(--color-bg-checked);
+                    visibility: hidden;
+                    pointer-events: none;
+                    transform: scale(1);
+                    transition: transform 400ms ease-out, opacity 400ms;
+                }
             }
         }
 
         &--checked {
             ^&-checkbox {
-                background: var(--color-bg-checked);
-                border-color: var(--color-bg-checked);
-
-                &:hover {
-                    background: var(--color-bg-checked-hover);
-                    border-color: var(--color-bg-checked-hover);
+                &:not(&--no-hover):hover {
+                    .cdx-checklist__item-checkbox-check {
+                        background: var(--color-bg-checked-hover);
+                        border-color: var(--color-bg-checked-hover);
+                    }
                 }
 
-                &::after {
-                    border: 2px solid var(--color-tick);
-                    border-top: none;
-                    border-right: none;
-                    animation: check-sign-in 250ms ease-in;
-                    opacity: 1;
-                }
+                &-check {
+                    background: var(--color-bg-checked);
+                    border-color: var(--color-bg-checked);
 
-                &::before {
-                    opacity: 0;
-                    visibility: visible;
-                    transform: scale(3.5);
+                    svg {
+                        opacity: 1;
+                        
+                        path {
+                            stroke: var(--color-tick);
+                        }
+                    }
+
+                    &::before {
+                        opacity: 0;
+                        visibility: visible;
+                        transform: scale(3.5);
+                    }
                 }
             }
         }
