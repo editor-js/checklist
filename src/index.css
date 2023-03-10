@@ -3,8 +3,11 @@
     --checkbox-background: #fff;
     --color-border: #C9C9C9;
     --color-bg-checked: #369FFF;
+    --line-height: 1.57em;
     --color-bg-checked-hover: #0059AB;
     --color-tick: #fff;
+    --width-checkbox: 22px;
+    --height-checkbox: 22px;
     gap: 6px;
     display: flex;
     flex-direction: column;
@@ -12,20 +15,21 @@
     &__item {
         display: flex;
         box-sizing: content-box;
-        align-items: center;
+        align-items: flex-start;
 
         &-text {
             outline: none;
             flex-grow: 1;
-            line-height: 1.57em;
+            line-height: var(--line-height);
         }
 
         &-checkbox {
-            width: 22px;
-            height: 22px;
+            width: var(--width-checkbox);
+            height: var(--height-checkbox);
             display: flex;
             align-items: center;
             margin-right: 8px;
+            margin-top: calc(var(--line-height)/2 - var(--height-checkbox)/2);
             cursor: pointer;
 
             svg {
