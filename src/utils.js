@@ -30,14 +30,14 @@ export function fragmentToHtml(fragment) {
 }
 
 /**
- * Helper for making Elements with attributes
+ * Helper for making Elements with properties
  *
  * @param  {string} tagName           - new Element tag name
  * @param  {Array|string} classNames  - list or name of CSS classname(s)
- * @param  {object} attributes        - any attributes
+ * @param  {object} properties        - any properties
  * @returns {Element}
  */
-export function make(tagName, classNames = null, attributes = {}) {
+export function make(tagName, classNames = null, properties = {}) {
   const el = document.createElement(tagName);
 
   if (Array.isArray(classNames)) {
@@ -46,8 +46,8 @@ export function make(tagName, classNames = null, attributes = {}) {
     el.classList.add(classNames);
   }
 
-  for (const attrName in attributes) {
-    el.setAttribute(attrName, attributes[attrName]);
+  for (const propName in properties) {
+    el[propName] = properties[propName];
   }
 
   return el;
