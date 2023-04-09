@@ -42,10 +42,12 @@
                 max-height: 20px;
             }
 
-            &:not(&--no-hover):hover {
-                ^&-check {
-                    svg {
-                        opacity: 1;
+            @media (hover: hover) {
+                &:not(&--no-hover):hover {
+                    ^&-check {
+                        svg {
+                            opacity: 1;
+                        }
                     }
                 }
             }
@@ -82,10 +84,12 @@
 
         &--checked {
             ^&-checkbox {
-                &:not(&--no-hover):hover {
-                    .cdx-checklist__item-checkbox-check {
-                        background: var(--color-bg-checked-hover);
-                        border-color: var(--color-bg-checked-hover);
+                @media (hover: hover) {
+                    &:not(&--no-hover):hover {
+                        .cdx-checklist__item-checkbox-check {
+                            background: var(--color-bg-checked-hover);
+                            border-color: var(--color-bg-checked-hover);
+                        }
                     }
                 }
 
