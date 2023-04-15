@@ -3,7 +3,7 @@
  */
 import './index.css';
 
-import { IconChecklist } from '@codexteam/icons'
+import { IconChecklist, IconCheck } from '@codexteam/icons'
 import { extractContentAfterCaret, fragmentToHtml, make, getHTML, moveCaret } from './utils';
 
 
@@ -225,10 +225,12 @@ export default class Checklist {
    */
   toggleCheckbox(event) {
     const checkListItem = event.target.closest(`.${this.CSS.item}`);
-    const checkbox = checkListItem.querySelector(`.${this.CSS.checkbox}`);
+    const checkbox = checkListItem.querySelector(`.${this.CSS.checkboxContainer}`);
 
     if (checkbox.contains(event.target)) {
       checkListItem.classList.toggle(this.CSS.itemChecked);
+      checkbox.classList.add(this.CSS.noHover);
+      checkbox.addEventListener('mouseleave', () => this.removeSpecialHoverBehavior(checkbox), { once: true });
     }
   }
 
@@ -241,6 +243,7 @@ export default class Checklist {
   createChecklistItem(item = {}) {
     const checkListItem = make('div', this.CSS.item);
     const checkbox = make('span', this.CSS.checkbox);
+    const checkboxContainer = make('div', this.CSS.checkboxContainer);
     const textField = make('div', this.CSS.textField, {
       innerHTML: item.text ? item.text : '',
       contentEditable: !this.readOnly,
@@ -250,7 +253,11 @@ export default class Checklist {
       checkListItem.classList.add(this.CSS.itemChecked);
     }
 
-    checkListItem.appendChild(checkbox);
+    checkbox.innerHTML = IconCheck;
+
+    checkboxContainer.appendChild(checkbox);
+
+    checkListItem.appendChild(checkboxContainer);
     checkListItem.appendChild(textField);
 
     return checkListItem;
@@ -364,8 +371,10 @@ export default class Checklist {
       wrapper: 'cdx-checklist',
       item: 'cdx-checklist__item',
       itemChecked: 'cdx-checklist__item--checked',
-      checkbox: 'cdx-checklist__item-checkbox',
+      noHover: 'cdx-checklist__item-checkbox--no-hover',
+      checkbox: 'cdx-checklist__item-checkbox-check',
       textField: 'cdx-checklist__item-text',
+      checkboxContainer: 'cdx-checklist__item-checkbox'
     };
   }
 
@@ -376,6 +385,18 @@ export default class Checklist {
    */
   get items() {
     return Array.from(this._elements.wrapper.querySelectorAll(`.${this.CSS.item}`));
+  }
+
+
+  /**
+   * Removes class responsible for special hover behavior on an item
+   * 
+   * @private
+   * @param {Element} el - item wrapper
+   * @returns {Element}
+   */
+  removeSpecialHoverBehavior(el) {
+    el.classList.remove(this.CSS.noHover);
   }
 
   /**
