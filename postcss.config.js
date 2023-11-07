@@ -1,7 +1,7 @@
 module.exports = {
-  plugins: {
-    "postcss-css-variables": {},
-    "postcss-nested": {},
-    "postcss-nested-ancestors": {},
-  },
+  plugins: [
+    require('postcss-css-variables'),
+    require('postcss-nested-ancestors'),
+    require('postcss-nested'),
+  ],
 };
