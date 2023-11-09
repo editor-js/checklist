@@ -8,8 +8,6 @@ This Tool for the [Editor.js](https://editorjs.io) allows you to add  checklists
 
 ## Installation
 
-### Install via NPM
-
 Get the package
 
 ```shell
