@@ -13,19 +13,14 @@ This Tool for the [Editor.js](https://editorjs.io) allows you to add  checklists
 Get the package
 
 ```shell
-npm i --save-dev @editorjs/checklist
+yarn add @editorjs/checklist
 ```
 
 Include module at your application
 
 ```javascript
-const Checklist = require('@editorjs/checklist');
+import Checklist from '@editorjs/checklist'
 ```
-
-### Download to your project's source dir
-
-1. Upload folder `dist` from repository
-2. Add `dist/bundle.js` file to your page.
 
 ### Load from CDN
 
