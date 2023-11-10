@@ -8,36 +8,19 @@ This Tool for the [Editor.js](https://editorjs.io) allows you to add  checklists
 
 ## Installation
 
-### Install via NPM
-
 Get the package
 
 ```shell
-npm i --save-dev @editorjs/checklist
+yarn add @editorjs/checklist
 ```
 
 Include module at your application
 
 ```javascript
-const Checklist = require('@editorjs/checklist');
+import Checklist from '@editorjs/checklist'
 ```
 
-### Download to your project's source dir
-
-1. Upload folder `dist` from repository
-2. Add `dist/bundle.js` file to your page.
-
-### Load from CDN
-
-You can load specific version of package from [jsDelivr CDN](https://www.jsdelivr.com/package/npm/@editorjs/checklist).
-
-`https://cdn.jsdelivr.net/npm/@editorjs/checklist@latest`
-
-Then require this script on page with Editor.js.
-
-```html
-<script src="..."></script>
-```
+Optionally, you can load this tool from CDN [JsDelivr CDN](https://cdn.jsdelivr.net/npm/@editorjs/checklist@latest)
 
 ## Usage
 
