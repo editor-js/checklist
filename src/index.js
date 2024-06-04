@@ -171,7 +171,7 @@ export default class Checklist {
       }
     }, false);
 
-    this._elements.wrapper.addEventListener('click', (event) => {
+    this._elements.wrapper.querySelector('.cdx-checklist__item-checkbox').addEventListener('click', (event) => {
       this.toggleCheckbox(event);
     });
 
