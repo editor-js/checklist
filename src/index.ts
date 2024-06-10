@@ -1,38 +1,47 @@
-/**
- * Build styles
- */
 import './index.css';
-
-import { IconChecklist, IconCheck } from '@codexteam/icons'
+import { IconChecklist, IconCheck } from '@codexteam/icons';
 import { extractContentAfterCaret, fragmentToHtml, make, getHTML, moveCaret } from './utils';
-
-
-/**
- * Require polyfills
- */
 import './polyfills.js';
-
-/**
- * @typedef {object} ChecklistData
- * @property {ChecklistItem[]} items - checklist elements
- */
 
 /**
  * @typedef {object} ChecklistItem
  * @property {string} text - item label
  * @property {boolean} checked - is the item checked
  */
+interface ChecklistItem {
+  text: string;
+  checked: boolean;
+}
+
+/**
+ * @typedef {object} ChecklistData
+ * @property {ChecklistItem[]} items - checklist elements
+ */
+interface ChecklistData {
+  items: ChecklistItem[];
+}
+
+interface ChecklistOptions {
+  data: ChecklistData;
+  api: any;
+  readOnly: boolean;
+}
 
 /**
  * Checklist Tool for the Editor.js 2.0
  */
 export default class Checklist {
+  private _elements: { wrapper: HTMLElement | null; items: HTMLElement[] };
+  private readOnly: boolean;
+  private api: any;
+  private data: ChecklistData;
+
   /**
    * Notify core that read-only mode is supported
    *
    * @returns {boolean}
    */
-  static get isReadOnlySupported() {
+  static get isReadOnlySupported(): boolean {
     return true;
   }
 
@@ -42,7 +51,7 @@ export default class Checklist {
    * @returns {boolean}
    * @public
    */
-  static get enableLineBreaks() {
+  static get enableLineBreaks(): boolean {
     return true;
   }
 
@@ -53,7 +62,7 @@ export default class Checklist {
    *
    * @returns {{icon: string, title: string}}
    */
-  static get toolbox() {
+  static get toolbox(): { icon: string; title: string } {
     return {
       icon: IconChecklist,
       title: 'Checklist',
@@ -65,7 +74,7 @@ export default class Checklist {
    *
    * @returns {{export: Function, import: Function}}
    */
-  static get conversionConfig() {
+  static get conversionConfig(): { export: (data: ChecklistData) => string; import: (str: string) => ChecklistData } {
     return {
       /**
        * To create exported string from the checkbox, concatenate items by dot-symbol.
@@ -73,7 +82,7 @@ export default class Checklist {
        * @param {ChecklistData} data - checklist data to create a string from that
        * @returns {string}
        */
-      export: (data) => {
+      export: (data: ChecklistData): string => {
         return data.items.map(({ text }) => text).join('. ');
       },
       /**
@@ -82,11 +91,11 @@ export default class Checklist {
        * @param {string} string - string to create list tool data from that
        * @returns {ChecklistData}
        */
-      import: (string) => {
+      import: (str: string): ChecklistData => {
         return {
           items: [
             {
-              text: string,
+              text: str,
               checked: false,
             },
           ],
@@ -100,11 +109,10 @@ export default class Checklist {
    *
    * @param {object} options - block constructor options
    * @param {ChecklistData} options.data - previously saved data
-   * @param {object} options.config - user config for Tool
    * @param {object} options.api - Editor.js API
    * @param {boolean} options.readOnly - read only mode flag
    */
-  constructor({ data, config, api, readOnly }) {
+  constructor({ data, api, readOnly }: ChecklistOptions) {
     /**
      * HTML nodes
      *
@@ -119,7 +127,7 @@ export default class Checklist {
     /**
      * Fill or create tool's data structure
      */
-    this.data = data || {};
+    this.data = data || { items: [] };
   }
 
   /**
@@ -127,7 +135,7 @@ export default class Checklist {
    *
    * @returns {Element}
    */
-  render() {
+  render(): HTMLElement {
     this._elements.wrapper = make('div', [this.CSS.baseBlock, this.CSS.wrapper]);
 
     /**
@@ -145,7 +153,9 @@ export default class Checklist {
     this.data.items.forEach(item => {
       const newItem = this.createChecklistItem(item);
 
-      this._elements.wrapper.appendChild(newItem);
+      if(this._elements.wrapper) {
+        this._elements.wrapper.appendChild(newItem);
+      }
     });
 
     /**
@@ -158,7 +168,7 @@ export default class Checklist {
     /**
      * Add event-listeners
      */
-    this._elements.wrapper.addEventListener('keydown', (event) => {
+    this._elements.wrapper.addEventListener('keydown', (event: KeyboardEvent) => {
       const [ENTER, BACKSPACE] = [13, 8]; // key codes
 
       switch (event.keyCode) {
@@ -171,7 +181,7 @@ export default class Checklist {
       }
     }, false);
 
-    this._elements.wrapper.addEventListener('click', (event) => {
+    this._elements.wrapper.addEventListener('click', (event: MouseEvent) => {
       this.toggleCheckbox(event);
     });
 
@@ -183,11 +193,11 @@ export default class Checklist {
    *
    * @returns {ChecklistData}
    */
-  save() {
+  save(): ChecklistData {
     /**
      * @type {ChecklistItem[]}
      */
-    let items = this.items.map((itemEl) => {
+    let items: ChecklistItem[] = this.items.map((itemEl: HTMLElement) => {
       const input = this.getItemInput(itemEl);
 
       return {
@@ -213,7 +223,7 @@ export default class Checklist {
    * @returns {boolean} false if saved data is not correct, otherwise true
    * @public
    */
-  validate(savedData) {
+  validate(savedData: ChecklistData): boolean {
     return !!savedData.items.length;
   }
 
@@ -223,11 +233,11 @@ export default class Checklist {
    * @param {MouseEvent} event - click
    * @returns {void}
    */
-  toggleCheckbox(event) {
-    const checkListItem = event.target.closest(`.${this.CSS.item}`);
-    const checkbox = checkListItem.querySelector(`.${this.CSS.checkboxContainer}`);
+  toggleCheckbox(event: MouseEvent): void {
+    const checkListItem = (event.target as HTMLElement).closest(`.${this.CSS.item}`) as HTMLElement;
+    const checkbox = checkListItem.querySelector(`.${this.CSS.checkboxContainer}`) as HTMLElement;
 
-    if (checkbox.contains(event.target)) {
+    if (checkbox.contains(event.target as Node)) {
       checkListItem.classList.toggle(this.CSS.itemChecked);
       checkbox.classList.add(this.CSS.noHover);
       checkbox.addEventListener('mouseleave', () => this.removeSpecialHoverBehavior(checkbox), { once: true });
@@ -240,7 +250,7 @@ export default class Checklist {
    * @param {ChecklistItem} item - data.item
    * @returns {Element} checkListItem - new element of checklist
    */
-  createChecklistItem(item = {}) {
+  createChecklistItem(item: ChecklistItem = { text: '', checked: false }): HTMLElement {
     const checkListItem = make('div', this.CSS.item);
     const checkbox = make('span', this.CSS.checkbox);
     const checkboxContainer = make('div', this.CSS.checkboxContainer);
@@ -268,11 +278,11 @@ export default class Checklist {
    *
    * @param {KeyboardEvent} event - keyboard event
    */
-  enterPressed(event) {
+  enterPressed(event: KeyboardEvent): void {
     event.preventDefault();
 
     const items = this.items;
-    const currentItem = document.activeElement.closest(`.${this.CSS.item}`);
+    const currentItem = document.activeElement?.closest(`.${this.CSS.item}`) as HTMLElement;
     const currentItemIndex = items.indexOf(currentItem);
     const isLastItem = currentItemIndex === items.length - 1;
 
@@ -313,7 +323,7 @@ export default class Checklist {
     /**
      * Insert new checklist item as sibling to currently selected item
      */
-    this._elements.wrapper.insertBefore(newItem, currentItem.nextSibling);
+    this._elements.wrapper?.insertBefore(newItem, currentItem.nextSibling);
 
     /**
      * Move caret to contentEditable textField of new checklist item
@@ -326,8 +336,8 @@ export default class Checklist {
    *
    * @param {KeyboardEvent} event - keyboard event
    */
-  backspace(event) {
-    const currentItem = event.target.closest(`.${this.CSS.item}`);
+  backspace(event: KeyboardEvent): void {
+    const currentItem = (event.target as HTMLElement).closest(`.${this.CSS.item}`) as HTMLElement;
     const currentIndex = this.items.indexOf(currentItem);
     const prevItem = this.items[currentIndex - 1];
 
@@ -335,7 +345,7 @@ export default class Checklist {
       return;
     }
 
-    const selection = window.getSelection();
+    const selection = window.getSelection() as Selection;
     const caretAtTheBeginning = selection.focusOffset === 0;
 
     if (!caretAtTheBeginning) {
@@ -365,7 +375,7 @@ export default class Checklist {
    * @private
    * @returns {object<string>}
    */
-  get CSS() {
+  get CSS(): { [key: string]: string } {
     return {
       baseBlock: this.api.styles.block,
       wrapper: 'cdx-checklist',
@@ -383,19 +393,18 @@ export default class Checklist {
    *
    * @returns {Element[]}
    */
-  get items() {
-    return Array.from(this._elements.wrapper.querySelectorAll(`.${this.CSS.item}`));
+  get items(): HTMLElement[] {
+    return Array.from(this._elements.wrapper?.querySelectorAll(`.${this.CSS.item}`) || []);
   }
-
 
   /**
    * Removes class responsible for special hover behavior on an item
-   * 
+   *
    * @private
    * @param {Element} el - item wrapper
    * @returns {Element}
    */
-  removeSpecialHoverBehavior(el) {
+  removeSpecialHoverBehavior(el: HTMLElement): void {
     el.classList.remove(this.CSS.noHover);
   }
 
@@ -406,7 +415,7 @@ export default class Checklist {
    * @param {Element} el - item wrapper
    * @returns {Element}
    */
-  getItemInput(el) {
-    return el.querySelector(`.${this.CSS.textField}`);
+  getItemInput(el: HTMLElement): HTMLElement {
+    return el.querySelector(`.${this.CSS.textField}`) as HTMLElement;
   }
 }

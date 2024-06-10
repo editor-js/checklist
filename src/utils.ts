@@ -1,11 +1,11 @@
 /**
- * Remove and return HTML content after carer position in current input
- *
- * @returns {DocumentFragment} extracted HTML nodes
- */
-export function extractContentAfterCaret() {
-  const input = document.activeElement;
-  const selection = window.getSelection();
+* Remove and return HTML content after carer position in current input
+*
+* @returns {DocumentFragment} extracted HTML nodes
+*/
+export function extractContentAfterCaret(): DocumentFragment {
+  const input = document.activeElement as HTMLElement;
+  const selection = window.getSelection() as Selection;
   const selectRange = selection.getRangeAt(0);
   const range = selectRange.cloneRange();
 
@@ -21,7 +21,7 @@ export function extractContentAfterCaret() {
  * @param {DocumentFragment} fragment - what to convert
  * @returns {string}
  */
-export function fragmentToHtml(fragment) {
+export function fragmentToHtml(fragment: DocumentFragment): string {
   const tmpDiv = document.createElement('div');
 
   tmpDiv.appendChild(fragment);
@@ -37,7 +37,11 @@ export function fragmentToHtml(fragment) {
  * @param  {object} properties        - any properties
  * @returns {Element}
  */
-export function make(tagName, classNames = null, properties = {}) {
+export function make(
+    tagName: string,
+    classNames: string | string[] | null = null,
+    properties: { [key: string]: any } = {}
+): HTMLElement {
   const el = document.createElement(tagName);
 
   if (Array.isArray(classNames)) {
@@ -47,7 +51,9 @@ export function make(tagName, classNames = null, properties = {}) {
   }
 
   for (const propName in properties) {
-    el[propName] = properties[propName];
+    if (properties.hasOwnProperty(propName)) {
+      (el as any)[propName] = properties[propName];
+    }
   }
 
   return el;
@@ -60,7 +66,7 @@ export function make(tagName, classNames = null, properties = {}) {
  * @param {Element} el - content editable element
  * @returns {string}
  */
-export function getHTML(el) {
+export function getHTML(el: HTMLElement): string {
   return el.innerHTML.replace('<br>', ' ').trim();
 }
 
@@ -76,9 +82,9 @@ export function getHTML(el) {
  *
  * @returns {void}
  */
-export function moveCaret(element, toStart = false, offset = undefined) {
+export function moveCaret(element: HTMLElement, toStart: boolean = false, offset?: number): void {
   const range = document.createRange();
-  const selection = window.getSelection();
+  const selection = window.getSelection() as Selection;
 
   range.selectNodeContents(element);
 
