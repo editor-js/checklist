@@ -1,5 +1,6 @@
 import './index.css';
 import { IconChecklist, IconCheck } from '@codexteam/icons';
+import EditorJS from "@editorjs/editorjs";
 import { extractContentAfterCaret, fragmentToHtml, make, getHTML, moveCaret } from './utils';
 import './polyfills.js';
 
@@ -8,7 +9,7 @@ import './polyfills.js';
  * @property {string} text - item label
  * @property {boolean} checked - is the item checked
  */
-interface ChecklistItem {
+export interface ChecklistItem {
   text: string;
   checked: boolean;
 }
@@ -17,23 +18,35 @@ interface ChecklistItem {
  * @typedef {object} ChecklistData
  * @property {ChecklistItem[]} items - checklist elements
  */
-interface ChecklistData {
+export interface ChecklistData {
   items: ChecklistItem[];
 }
 
+/**
+ * @typedef {object} ChecklistOptions
+ * @property {ChecklistData} data - checklist option data
+ * @property {any} api - Editor.js API
+ * @property {boolean} readOnly - read only mode flag
+ */
 interface ChecklistOptions {
   data: ChecklistData;
-  api: any;
+  api: EditorJS;
   readOnly: boolean;
 }
 
 /**
  * Checklist Tool for the Editor.js 2.0
+ *
+ * @typedef {object} CheckList API
  */
 export default class Checklist {
+  /** @private HTML nodes */
   private _elements: { wrapper: HTMLElement | null; items: HTMLElement[] };
+  /** @private read only flag */
   private readOnly: boolean;
-  private api: any;
+  /** @private Editor.js API */
+  private api: EditorJS;
+  /** @private checklist option data */
   private data: ChecklistData;
 
   /**
@@ -153,7 +166,7 @@ export default class Checklist {
     this.data.items.forEach(item => {
       const newItem = this.createChecklistItem(item);
 
-      if(this._elements.wrapper) {
+      if (this._elements.wrapper) {
         this._elements.wrapper.appendChild(newItem);
       }
     });
@@ -182,7 +195,7 @@ export default class Checklist {
     }, false);
 
     this._elements.wrapper.addEventListener('click', (event: MouseEvent) => {
-      this.toggleCheckbox(event);
+      this.toggleCheckbox(this._elements.wrapper, event);
     });
 
     return this._elements.wrapper;
@@ -197,8 +210,8 @@ export default class Checklist {
     /**
      * @type {ChecklistItem[]}
      */
-    let items: ChecklistItem[] = this.items.map((itemEl: HTMLElement) => {
-      const input = this.getItemInput(itemEl);
+    let items: ChecklistItem[] = this.items.filter(itemEl => this.getItemInput(itemEl) !== null).map((itemEl) => {
+      const input = this.getItemInput(itemEl) as HTMLElement;
 
       return {
         text: getHTML(input),
@@ -230,17 +243,24 @@ export default class Checklist {
   /**
    * Toggle checklist item state
    *
+   * @param {HTMLElement | null} target - element receiving the event
    * @param {MouseEvent} event - click
    * @returns {void}
    */
-  toggleCheckbox(event: MouseEvent): void {
-    const checkListItem = (event.target as HTMLElement).closest(`.${this.CSS.item}`) as HTMLElement;
-    const checkbox = checkListItem.querySelector(`.${this.CSS.checkboxContainer}`) as HTMLElement;
+  toggleCheckbox(target: HTMLElement | null, event: MouseEvent): void {
 
-    if (checkbox.contains(event.target as Node)) {
-      checkListItem.classList.toggle(this.CSS.itemChecked);
-      checkbox.classList.add(this.CSS.noHover);
-      checkbox.addEventListener('mouseleave', () => this.removeSpecialHoverBehavior(checkbox), { once: true });
+    if (target) {
+      const checkListItem = target.closest(`.${this.CSS.item}`);
+
+      if (checkListItem) {
+        const checkbox = checkListItem.querySelector<HTMLElement>(`.${this.CSS.checkboxContainer}`);
+
+        if (checkbox && checkbox.contains(event.target as Node)) {
+          checkListItem.classList.toggle(this.CSS.itemChecked);
+          checkbox.classList.add(this.CSS.noHover);
+          checkbox.addEventListener('mouseleave', () => this.removeSpecialHoverBehavior(checkbox), { once: true });
+        }
+      }
     }
   }
 
@@ -282,53 +302,60 @@ export default class Checklist {
     event.preventDefault();
 
     const items = this.items;
-    const currentItem = document.activeElement?.closest(`.${this.CSS.item}`) as HTMLElement;
-    const currentItemIndex = items.indexOf(currentItem);
+    const currentItem = document.activeElement?.closest(`.${this.CSS.item}`);
+    const currentItemIndex = items.indexOf(<HTMLElement>currentItem);
     const isLastItem = currentItemIndex === items.length - 1;
 
     /**
      * Prevent checklist item generation if it's the last item and it's empty
      * and get out of checklist
      */
-    if (isLastItem) {
-      const currentItemText = getHTML(this.getItemInput(currentItem));
-      const isEmptyItem = currentItemText.length === 0;
+    if (isLastItem && currentItem) {
+      const itemInput = this.getItemInput(currentItem)
 
-      if (isEmptyItem) {
-        const currentBlockIndex = this.api.blocks.getCurrentBlockIndex();
+      if (itemInput) {
+        const currentItemText = getHTML(itemInput);
+        const isEmptyItem = currentItemText.length === 0;
 
-        currentItem.remove();
+        if (isEmptyItem) {
+          const currentBlockIndex = this.api.blocks.getCurrentBlockIndex();
 
-        this.api.blocks.insert();
-        this.api.caret.setToBlock(currentBlockIndex + 1);
+          currentItem.remove();
 
-        return;
+          this.api.blocks.insert();
+          this.api.caret.setToBlock(currentBlockIndex + 1);
+
+          return;
+        }
+      }
+      /**
+       * Cut content after caret
+       */
+      const fragmentAfterCaret = extractContentAfterCaret();
+      const htmlAfterCaret = fragmentToHtml(fragmentAfterCaret);
+
+      /**
+       * Create new checklist item
+       */
+      const newItem = this.createChecklistItem({
+        text: htmlAfterCaret,
+        checked: false,
+      });
+
+      /**
+       * Insert new checklist item as sibling to currently selected item
+       */
+      this._elements.wrapper?.insertBefore(newItem, currentItem.nextSibling);
+
+      /**
+       * Move caret to contentEditable textField of new checklist item
+       */
+      const newItemInput = this.getItemInput(newItem)
+
+      if (newItemInput) {
+        moveCaret(newItemInput, true);
       }
     }
-
-    /**
-     * Cut content after caret
-     */
-    const fragmentAfterCaret = extractContentAfterCaret();
-    const htmlAfterCaret = fragmentToHtml(fragmentAfterCaret);
-
-    /**
-     * Create new checklist item
-     */
-    const newItem = this.createChecklistItem({
-      text: htmlAfterCaret,
-      checked: false,
-    });
-
-    /**
-     * Insert new checklist item as sibling to currently selected item
-     */
-    this._elements.wrapper?.insertBefore(newItem, currentItem.nextSibling);
-
-    /**
-     * Move caret to contentEditable textField of new checklist item
-     */
-    moveCaret(this.getItemInput(newItem), true);
   }
 
   /**
@@ -360,13 +387,16 @@ export default class Checklist {
      */
     const fragmentAfterCaret = extractContentAfterCaret();
     const prevItemInput = this.getItemInput(prevItem);
-    const prevItemChildNodesLength = prevItemInput.childNodes.length;
 
-    prevItemInput.appendChild(fragmentAfterCaret);
+    if (prevItemInput) {
+      const prevItemChildNodesLength = prevItemInput.childNodes.length;
 
-    moveCaret(prevItemInput, undefined, prevItemChildNodesLength);
+      prevItemInput.appendChild(fragmentAfterCaret);
 
-    currentItem.remove();
+      moveCaret(prevItemInput, undefined, prevItemChildNodesLength);
+
+      currentItem.remove();
+    }
   }
 
   /**
@@ -415,7 +445,7 @@ export default class Checklist {
    * @param {Element} el - item wrapper
    * @returns {Element}
    */
-  getItemInput(el: HTMLElement): HTMLElement {
-    return el.querySelector(`.${this.CSS.textField}`) as HTMLElement;
+  getItemInput(el: HTMLElement | Element): HTMLElement | null {
+    return el.querySelector(`.${this.CSS.textField}`);
   }
 }

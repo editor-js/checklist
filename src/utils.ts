@@ -1,8 +1,8 @@
 /**
-* Remove and return HTML content after carer position in current input
-*
-* @returns {DocumentFragment} extracted HTML nodes
-*/
+ * Remove and return HTML content after carer position in current input
+ *
+ * @returns {DocumentFragment} extracted HTML nodes
+ */
 export function extractContentAfterCaret(): DocumentFragment {
   const input = document.activeElement as HTMLElement;
   const selection = window.getSelection() as Selection;
