@@ -30,10 +30,10 @@
     "email": "team@codex.so"
   },
   "devDependencies": {
+    "@editorjs/editorjs": "^2.29.1",
     "@types/node": "^20.14.2",
     "@typescript-eslint/eslint-plugin": "^7.13.0",
     "@typescript-eslint/parser": "^7.13.0",
-    "@editorjs/editorjs": "^2.0.0",
     "postcss-css-variables": "^0.19.0",
     "postcss-nested": "^6.0.1",
     "postcss-nested-ancestors": "^3.0.0",
@@ -46,6 +46,6 @@
     "@codexteam/icons": "^0.3.0"
   },
   "peerDependencies": {
-    "@editorjs/editorjs": "^2.0.0"
+    "@editorjs/editorjs": "2.x"
   }
 }

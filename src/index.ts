@@ -5,39 +5,37 @@ import { extractContentAfterCaret, fragmentToHtml, make, getHTML, moveCaret } fr
 import './polyfills.js';
 
 /**
- * @typedef {object} ChecklistItem
- * @property {string} text - item label
- * @property {boolean} checked - is the item checked
+ * Single CheckList data entity abstraction
  */
 export interface ChecklistItem {
+  /** @property {string} text - item label */
   text: string;
+  /** @property {boolean} checked - is the item checked */
   checked: boolean;
 }
 
 /**
- * @typedef {object} ChecklistData
- * @property {ChecklistItem[]} items - checklist elements
+ * CheckList data collection abstraction
  */
 export interface ChecklistData {
+  /** @property {ChecklistItem[]} items - checklist elements */
   items: ChecklistItem[];
 }
 
 /**
- * @typedef {object} ChecklistOptions
- * @property {ChecklistData} data - checklist option data
- * @property {any} api - Editor.js API
- * @property {boolean} readOnly - read only mode flag
+ * CheckList constructor options
  */
-interface ChecklistOptions {
+export interface ChecklistOptions {
+  /** @property {ChecklistData} data - checklist option data */
   data: ChecklistData;
+  /** @property {EditorJS} api - Editor.js API */
   api: EditorJS;
+  /** @property {boolean} readOnly - read only mode flag */
   readOnly: boolean;
 }
 
 /**
  * Checklist Tool for the Editor.js 2.0
- *
- * @typedef {object} CheckList API
  */
 export default class Checklist {
   /** @private HTML nodes */
@@ -310,50 +308,53 @@ export default class Checklist {
      * Prevent checklist item generation if it's the last item and it's empty
      * and get out of checklist
      */
-    if (isLastItem && currentItem) {
-      const itemInput = this.getItemInput(currentItem)
+    if (isLastItem) {
 
-      if (itemInput) {
-        const currentItemText = getHTML(itemInput);
-        const isEmptyItem = currentItemText.length === 0;
+      if (currentItem) {
+        const itemInput = this.getItemInput(currentItem)
 
-        if (isEmptyItem) {
-          const currentBlockIndex = this.api.blocks.getCurrentBlockIndex();
+        if (itemInput) {
+          const currentItemText = getHTML(itemInput);
+          const isEmptyItem = currentItemText.length === 0;
 
-          currentItem.remove();
+          if (isEmptyItem) {
+            const currentBlockIndex = this.api.blocks.getCurrentBlockIndex();
 
-          this.api.blocks.insert();
-          this.api.caret.setToBlock(currentBlockIndex + 1);
+            currentItem.remove();
 
-          return;
+            this.api.blocks.insert();
+            this.api.caret.setToBlock(currentBlockIndex + 1);
+
+            return;
+          }
         }
-      }
-      /**
-       * Cut content after caret
-       */
-      const fragmentAfterCaret = extractContentAfterCaret();
-      const htmlAfterCaret = fragmentToHtml(fragmentAfterCaret);
+        /**
+         * Cut content after caret
+         */
+        const fragmentAfterCaret = extractContentAfterCaret();
+        const htmlAfterCaret = fragmentToHtml(fragmentAfterCaret);
 
-      /**
-       * Create new checklist item
-       */
-      const newItem = this.createChecklistItem({
-        text: htmlAfterCaret,
-        checked: false,
-      });
+        /**
+         * Create new checklist item
+         */
+        const newItem = this.createChecklistItem({
+          text: htmlAfterCaret,
+          checked: false,
+        });
 
-      /**
-       * Insert new checklist item as sibling to currently selected item
-       */
-      this._elements.wrapper?.insertBefore(newItem, currentItem.nextSibling);
+        /**
+         * Insert new checklist item as sibling to currently selected item
+         */
+        this._elements.wrapper?.insertBefore(newItem, currentItem.nextSibling);
 
-      /**
-       * Move caret to contentEditable textField of new checklist item
-       */
-      const newItemInput = this.getItemInput(newItem)
+        /**
+         * Move caret to contentEditable textField of new checklist item
+         */
+        const newItemInput = this.getItemInput(newItem)
 
-      if (newItemInput) {
-        moveCaret(newItemInput, true);
+        if (newItemInput) {
+          moveCaret(newItemInput, true);
+        }
       }
     }
   }
