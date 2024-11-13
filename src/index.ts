@@ -1,38 +1,58 @@
-/**
- * Build styles
- */
 import './index.css';
-
-import { IconChecklist, IconCheck } from '@codexteam/icons'
+import { IconChecklist, IconCheck } from '@codexteam/icons';
+import EditorJS from "@editorjs/editorjs";
 import { extractContentAfterCaret, fragmentToHtml, make, getHTML, moveCaret } from './utils';
-
-
-/**
- * Require polyfills
- */
 import './polyfills.js';
 
 /**
- * @typedef {object} ChecklistData
- * @property {ChecklistItem[]} items - checklist elements
+ * Single CheckList data entity abstraction
  */
+export interface ChecklistItem {
+  /** @property {string} text - item label */
+  text: string;
+  /** @property {boolean} checked - is the item checked */
+  checked: boolean;
+}
 
 /**
- * @typedef {object} ChecklistItem
- * @property {string} text - item label
- * @property {boolean} checked - is the item checked
+ * CheckList data collection abstraction
  */
+export interface ChecklistData {
+  /** @property {ChecklistItem[]} items - checklist elements */
+  items: ChecklistItem[];
+}
+
+/**
+ * CheckList constructor options
+ */
+export interface ChecklistOptions {
+  /** @property {ChecklistData} data - checklist option data */
+  data: ChecklistData;
+  /** @property {EditorJS} api - Editor.js API */
+  api: EditorJS;
+  /** @property {boolean} readOnly - read only mode flag */
+  readOnly: boolean;
+}
 
 /**
  * Checklist Tool for the Editor.js 2.0
  */
 export default class Checklist {
+  /** @private HTML nodes */
+  private _elements: { wrapper: HTMLElement | null; items: HTMLElement[] };
+  /** @private read only flag */
+  private readOnly: boolean;
+  /** @private Editor.js API */
+  private api: EditorJS;
+  /** @private checklist option data */
+  private data: ChecklistData;
+
   /**
    * Notify core that read-only mode is supported
    *
    * @returns {boolean}
    */
-  static get isReadOnlySupported() {
+  static get isReadOnlySupported(): boolean {
     return true;
   }
 
@@ -42,7 +62,7 @@ export default class Checklist {
    * @returns {boolean}
    * @public
    */
-  static get enableLineBreaks() {
+  static get enableLineBreaks(): boolean {
     return true;
   }
 
@@ -53,7 +73,7 @@ export default class Checklist {
    *
    * @returns {{icon: string, title: string}}
    */
-  static get toolbox() {
+  static get toolbox(): { icon: string; title: string } {
     return {
       icon: IconChecklist,
       title: 'Checklist',
@@ -65,7 +85,7 @@ export default class Checklist {
    *
    * @returns {{export: Function, import: Function}}
    */
-  static get conversionConfig() {
+  static get conversionConfig(): { export: (data: ChecklistData) => string; import: (str: string) => ChecklistData } {
     return {
       /**
        * To create exported string from the checkbox, concatenate items by dot-symbol.
@@ -73,7 +93,7 @@ export default class Checklist {
        * @param {ChecklistData} data - checklist data to create a string from that
        * @returns {string}
        */
-      export: (data) => {
+      export: (data: ChecklistData): string => {
         return data.items.map(({ text }) => text).join('. ');
       },
       /**
@@ -82,11 +102,11 @@ export default class Checklist {
        * @param {string} string - string to create list tool data from that
        * @returns {ChecklistData}
        */
-      import: (string) => {
+      import: (str: string): ChecklistData => {
         return {
           items: [
             {
-              text: string,
+              text: str,
               checked: false,
             },
           ],
@@ -100,11 +120,10 @@ export default class Checklist {
    *
    * @param {object} options - block constructor options
    * @param {ChecklistData} options.data - previously saved data
-   * @param {object} options.config - user config for Tool
    * @param {object} options.api - Editor.js API
    * @param {boolean} options.readOnly - read only mode flag
    */
-  constructor({ data, config, api, readOnly }) {
+  constructor({ data, api, readOnly }: ChecklistOptions) {
     /**
      * HTML nodes
      *
@@ -119,7 +138,7 @@ export default class Checklist {
     /**
      * Fill or create tool's data structure
      */
-    this.data = data || {};
+    this.data = data || { items: [] };
   }
 
   /**
@@ -127,7 +146,7 @@ export default class Checklist {
    *
    * @returns {Element}
    */
-  render() {
+  render(): HTMLElement {
     this._elements.wrapper = make('div', [this.CSS.baseBlock, this.CSS.wrapper]);
 
     /**
@@ -145,7 +164,9 @@ export default class Checklist {
     this.data.items.forEach(item => {
       const newItem = this.createChecklistItem(item);
 
-      this._elements.wrapper.appendChild(newItem);
+      if (this._elements.wrapper) {
+        this._elements.wrapper.appendChild(newItem);
+      }
     });
 
     /**
@@ -158,7 +179,7 @@ export default class Checklist {
     /**
      * Add event-listeners
      */
-    this._elements.wrapper.addEventListener('keydown', (event) => {
+    this._elements.wrapper.addEventListener('keydown', (event: KeyboardEvent) => {
       const [ENTER, BACKSPACE] = [13, 8]; // key codes
 
       switch (event.keyCode) {
@@ -171,8 +192,8 @@ export default class Checklist {
       }
     }, false);
 
-    this._elements.wrapper.addEventListener('click', (event) => {
-      this.toggleCheckbox(event);
+    this._elements.wrapper.addEventListener('click', (event: MouseEvent) => {
+      this.toggleCheckbox(this._elements.wrapper, event);
     });
 
     return this._elements.wrapper;
@@ -183,12 +204,12 @@ export default class Checklist {
    *
    * @returns {ChecklistData}
    */
-  save() {
+  save(): ChecklistData {
     /**
      * @type {ChecklistItem[]}
      */
-    let items = this.items.map((itemEl) => {
-      const input = this.getItemInput(itemEl);
+    let items: ChecklistItem[] = this.items.filter(itemEl => this.getItemInput(itemEl) !== null).map((itemEl) => {
+      const input = this.getItemInput(itemEl) as HTMLElement;
 
       return {
         text: getHTML(input),
@@ -213,24 +234,31 @@ export default class Checklist {
    * @returns {boolean} false if saved data is not correct, otherwise true
    * @public
    */
-  validate(savedData) {
+  validate(savedData: ChecklistData): boolean {
     return !!savedData.items.length;
   }
 
   /**
    * Toggle checklist item state
    *
+   * @param {HTMLElement | null} target - element receiving the event
    * @param {MouseEvent} event - click
    * @returns {void}
    */
-  toggleCheckbox(event) {
-    const checkListItem = event.target.closest(`.${this.CSS.item}`);
-    const checkbox = checkListItem.querySelector(`.${this.CSS.checkboxContainer}`);
+  toggleCheckbox(target: HTMLElement | null, event: MouseEvent): void {
 
-    if (checkbox.contains(event.target)) {
-      checkListItem.classList.toggle(this.CSS.itemChecked);
-      checkbox.classList.add(this.CSS.noHover);
-      checkbox.addEventListener('mouseleave', () => this.removeSpecialHoverBehavior(checkbox), { once: true });
+    if (target) {
+      const checkListItem = target.closest(`.${this.CSS.item}`);
+
+      if (checkListItem) {
+        const checkbox = checkListItem.querySelector<HTMLElement>(`.${this.CSS.checkboxContainer}`);
+
+        if (checkbox && checkbox.contains(event.target as Node)) {
+          checkListItem.classList.toggle(this.CSS.itemChecked);
+          checkbox.classList.add(this.CSS.noHover);
+          checkbox.addEventListener('mouseleave', () => this.removeSpecialHoverBehavior(checkbox), { once: true });
+        }
+      }
     }
   }
 
@@ -240,7 +268,7 @@ export default class Checklist {
    * @param {ChecklistItem} item - data.item
    * @returns {Element} checkListItem - new element of checklist
    */
-  createChecklistItem(item = {}) {
+  createChecklistItem(item: ChecklistItem = { text: '', checked: false }): HTMLElement {
     const checkListItem = make('div', this.CSS.item);
     const checkbox = make('span', this.CSS.checkbox);
     const checkboxContainer = make('div', this.CSS.checkboxContainer);
@@ -268,12 +296,12 @@ export default class Checklist {
    *
    * @param {KeyboardEvent} event - keyboard event
    */
-  enterPressed(event) {
+  enterPressed(event: KeyboardEvent): void {
     event.preventDefault();
 
     const items = this.items;
-    const currentItem = document.activeElement.closest(`.${this.CSS.item}`);
-    const currentItemIndex = items.indexOf(currentItem);
+    const currentItem = document.activeElement?.closest(`.${this.CSS.item}`);
+    const currentItemIndex = items.indexOf(<HTMLElement>currentItem);
     const isLastItem = currentItemIndex === items.length - 1;
 
     /**
@@ -281,44 +309,54 @@ export default class Checklist {
      * and get out of checklist
      */
     if (isLastItem) {
-      const currentItemText = getHTML(this.getItemInput(currentItem));
-      const isEmptyItem = currentItemText.length === 0;
 
-      if (isEmptyItem) {
-        const currentBlockIndex = this.api.blocks.getCurrentBlockIndex();
+      if (currentItem) {
+        const itemInput = this.getItemInput(currentItem)
 
-        currentItem.remove();
+        if (itemInput) {
+          const currentItemText = getHTML(itemInput);
+          const isEmptyItem = currentItemText.length === 0;
 
-        this.api.blocks.insert();
-        this.api.caret.setToBlock(currentBlockIndex + 1);
+          if (isEmptyItem) {
+            const currentBlockIndex = this.api.blocks.getCurrentBlockIndex();
 
-        return;
+            currentItem.remove();
+
+            this.api.blocks.insert();
+            this.api.caret.setToBlock(currentBlockIndex + 1);
+
+            return;
+          }
+        }
+        /**
+         * Cut content after caret
+         */
+        const fragmentAfterCaret = extractContentAfterCaret();
+        const htmlAfterCaret = fragmentToHtml(fragmentAfterCaret);
+
+        /**
+         * Create new checklist item
+         */
+        const newItem = this.createChecklistItem({
+          text: htmlAfterCaret,
+          checked: false,
+        });
+
+        /**
+         * Insert new checklist item as sibling to currently selected item
+         */
+        this._elements.wrapper?.insertBefore(newItem, currentItem.nextSibling);
+
+        /**
+         * Move caret to contentEditable textField of new checklist item
+         */
+        const newItemInput = this.getItemInput(newItem)
+
+        if (newItemInput) {
+          moveCaret(newItemInput, true);
+        }
       }
     }
-
-    /**
-     * Cut content after caret
-     */
-    const fragmentAfterCaret = extractContentAfterCaret();
-    const htmlAfterCaret = fragmentToHtml(fragmentAfterCaret);
-
-    /**
-     * Create new checklist item
-     */
-    const newItem = this.createChecklistItem({
-      text: htmlAfterCaret,
-      checked: false,
-    });
-
-    /**
-     * Insert new checklist item as sibling to currently selected item
-     */
-    this._elements.wrapper.insertBefore(newItem, currentItem.nextSibling);
-
-    /**
-     * Move caret to contentEditable textField of new checklist item
-     */
-    moveCaret(this.getItemInput(newItem), true);
   }
 
   /**
@@ -326,8 +364,8 @@ export default class Checklist {
    *
    * @param {KeyboardEvent} event - keyboard event
    */
-  backspace(event) {
-    const currentItem = event.target.closest(`.${this.CSS.item}`);
+  backspace(event: KeyboardEvent): void {
+    const currentItem = (event.target as HTMLElement).closest(`.${this.CSS.item}`) as HTMLElement;
     const currentIndex = this.items.indexOf(currentItem);
     const prevItem = this.items[currentIndex - 1];
 
@@ -335,7 +373,7 @@ export default class Checklist {
       return;
     }
 
-    const selection = window.getSelection();
+    const selection = window.getSelection() as Selection;
     const caretAtTheBeginning = selection.focusOffset === 0;
 
     if (!caretAtTheBeginning) {
@@ -350,13 +388,16 @@ export default class Checklist {
      */
     const fragmentAfterCaret = extractContentAfterCaret();
     const prevItemInput = this.getItemInput(prevItem);
-    const prevItemChildNodesLength = prevItemInput.childNodes.length;
 
-    prevItemInput.appendChild(fragmentAfterCaret);
+    if (prevItemInput) {
+      const prevItemChildNodesLength = prevItemInput.childNodes.length;
 
-    moveCaret(prevItemInput, undefined, prevItemChildNodesLength);
+      prevItemInput.appendChild(fragmentAfterCaret);
 
-    currentItem.remove();
+      moveCaret(prevItemInput, undefined, prevItemChildNodesLength);
+
+      currentItem.remove();
+    }
   }
 
   /**
@@ -365,7 +406,7 @@ export default class Checklist {
    * @private
    * @returns {object<string>}
    */
-  get CSS() {
+  get CSS(): { [key: string]: string } {
     return {
       baseBlock: this.api.styles.block,
       wrapper: 'cdx-checklist',
@@ -383,19 +424,18 @@ export default class Checklist {
    *
    * @returns {Element[]}
    */
-  get items() {
-    return Array.from(this._elements.wrapper.querySelectorAll(`.${this.CSS.item}`));
+  get items(): HTMLElement[] {
+    return Array.from(this._elements.wrapper?.querySelectorAll(`.${this.CSS.item}`) || []);
   }
-
 
   /**
    * Removes class responsible for special hover behavior on an item
-   * 
+   *
    * @private
    * @param {Element} el - item wrapper
    * @returns {Element}
    */
-  removeSpecialHoverBehavior(el) {
+  removeSpecialHoverBehavior(el: HTMLElement): void {
     el.classList.remove(this.CSS.noHover);
   }
 
@@ -406,7 +446,7 @@ export default class Checklist {
    * @param {Element} el - item wrapper
    * @returns {Element}
    */
-  getItemInput(el) {
+  getItemInput(el: HTMLElement | Element): HTMLElement | null {
     return el.querySelector(`.${this.CSS.textField}`);
   }
 }
