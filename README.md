@@ -2,7 +2,9 @@
 
 # Checklist Tool for Editor.js
 
-This Tool for the [Editor.js](https://editorjs.io) allows you to add  checklists to your texts.
+> [!IMPORTANT]
+> This repository is deprecated and is no longer supported.
+Take a look at a new repository [List tool](https://github.com/editor-js/list) with more functionality and compatibility with old data.
 
 ![](assets/68747470733a2f2f636170656c6c612e706963732f66303939646439622d313332312d343766362d623965312d3937666331656634306236612e6a7067.jpeg)
 
